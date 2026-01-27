@@ -11,5 +11,13 @@ namespace Application.Applications
         {
             _comissaoRepository = comissaoRepository;
         }
+
+        public async Task MarcarComoPagaAsync(Guid id)
+        {
+            var comissao = await _comissaoRepository.GetByIdAsync(id);
+
+            comissao.MarcarComoPaga();
+            await _comissaoRepository.UpdateAsync(comissao);
+        }
     }
 }

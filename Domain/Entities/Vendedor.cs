@@ -39,7 +39,7 @@ namespace Domain.Entities
             Ativo = true;
         }
 
-        public bool PodeReceberCommissao()
+        public bool PodeReceberComissao()
         {
             return Ativo; 
         }

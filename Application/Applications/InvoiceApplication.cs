@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Services;
 
 namespace Application.Applications
 {
@@ -10,12 +11,14 @@ namespace Application.Applications
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IVendedorRepository _vendedorRepository;
         private readonly IComissaoRepository _comissaoRepository;
+        private readonly ComissaoService _comissaoService;
 
-        public InvoiceApplication(IInvoiceRepository invoiceRepository, IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository)
+        public InvoiceApplication(IInvoiceRepository invoiceRepository, IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository, ComissaoService comissaoService)
         {
             _invoiceRepository = invoiceRepository;
             _vendedorRepository = vendedorRepository;
             _comissaoRepository = comissaoRepository;
+            _comissaoService = comissaoService;
         }
 
         public async Task AprovarAsync(Guid id)
@@ -31,10 +34,10 @@ namespace Application.Applications
             var vendedor = await _vendedorRepository.GetByIdAsync(dto.VendedorId);
             var invoice = new Invoice(vendedor, dto.NumeroInvoice, dto.DataEmissao, dto.Cliente, dto.CnpjCpfCliente, dto.ValorTotal, dto.Observacoes);
 
-            //var comissao = _comissaoService.Calcular(invoice, vendedor);
+            var comissao = _comissaoService.Calcular(invoice, vendedor);
 
             await _invoiceRepository.AddAsync(invoice);
-            //await _comissaoRepository.AddAsync(comissao);
+            await _comissaoRepository.AddAsync(comissao);
 
             return invoice.Id;
         }

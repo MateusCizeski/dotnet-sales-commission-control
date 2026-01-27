@@ -21,6 +21,11 @@ namespace Infra.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Comissao?> GetByIdAsync(Guid id)
+        {
+            return await _context.Comissoes.FindAsync(id);
+        }
+
         public async Task<Comissao?> GetByInvoiceIdAsync(Guid invoiceId)
         {
             return await _context.Comissoes.FirstOrDefaultAsync(c => c.InvoiceId == invoiceId);

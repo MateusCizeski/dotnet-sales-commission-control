@@ -6,7 +6,7 @@ namespace Domain.Services
     {
         public Comissao Calcular(Invoice invoice, Vendedor vendedor)
         {
-            if (!vendedor.PodeReceberCommissao())
+            if (!vendedor.PodeReceberComissao())
             {
                 throw new Exception("Vendedor inativo não pode receber comissão.");
             }

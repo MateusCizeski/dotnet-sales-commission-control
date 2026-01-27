@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Domain.Interfaces;
+using Infra.Data.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Infra.DependencyInjection
 {
@@ -7,9 +9,9 @@ namespace Infra.DependencyInjection
         public static IServiceCollection AddInfra(
             this IServiceCollection services)
         {
-            // Repositórios (exemplo)
-             //services.AddScoped<IVendedorRepository, VendedorRepository>();
-            // services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+             services.AddScoped<IVendedorRepository, VendedorRepository>();
+             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+             services.AddScoped<IComissaoRepository, ComissaoRepository>();
 
             return services;
         }

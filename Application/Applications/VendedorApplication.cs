@@ -10,13 +10,11 @@ namespace Application.Applications
     {
         private IVendedorRepository _vendedorRepository;
         private IComissaoRepository _comissaoRepository;
-        private IInvoiceRepository _invoiceRepository;
 
-        public VendedorApplication(IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository, IInvoiceRepository invoiceRepository)
+        public VendedorApplication(IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository)
         {
             _vendedorRepository = vendedorRepository;
             _comissaoRepository = comissaoRepository;
-            _invoiceRepository = invoiceRepository;
         }
 
         public async Task<Guid> CriarAsync(CreateVendedorDto dto)

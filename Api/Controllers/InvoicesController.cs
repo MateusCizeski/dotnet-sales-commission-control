@@ -44,5 +44,20 @@ namespace Api.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UpdateInvoiceDto dto)
+        {
+            try
+            {
+                await _invoiceApplication.UpdateAsync(dto);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Invoice;
 using Application.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
 using Domain.Services;
 
@@ -32,7 +33,11 @@ namespace Application.Applications
         public async Task<Guid> CriarAsync(CreateInvoiceDto dto)
         {
             var vendedor = await _vendedorRepository.GetByIdAsync(dto.VendedorId);
-            var invoice = new Invoice(vendedor, dto.NumeroInvoice, dto.DataEmissao, dto.Cliente, dto.CnpjCpfCliente, dto.ValorTotal, dto.Observacoes);
+
+            var ultimoNumero = await _invoiceRepository.GetUltimoNumeroAsync();
+            var novoNumero = GerarProximoNumero(ultimoNumero);
+
+            var invoice = new Invoice(vendedor, novoNumero, dto.DataEmissao, dto.Cliente, dto.CnpjCpfCliente, dto.ValorTotal, dto.Observacoes);
 
             var comissao = _comissaoService.Calcular(invoice, vendedor);
 
@@ -40,6 +45,37 @@ namespace Application.Applications
             await _comissaoRepository.AddAsync(comissao);
 
             return invoice.Id;
+        }
+
+        private string GerarProximoNumero(string ultimoNumero)
+        {
+            if (string.IsNullOrEmpty(ultimoNumero)) return "INV-0001";
+
+            var numero = int.Parse(ultimoNumero.Substring(4));
+            numero++;
+
+            return $"INV-{numero:D4}";
+        }
+
+        public async Task UpdateAsync(UpdateInvoiceDto dto)
+        {
+            var invoice = await _invoiceRepository.GetByIdAsync(dto.Id);
+
+            var vendedor = await _vendedorRepository.GetByIdAsync(dto.vendedorId);
+
+            if (invoice == null)
+            {
+                throw new Exception("Invoice não encontrado");
+            }
+
+            if(invoice.Status == StatusInvoice.Aprovada)
+            {
+                throw new Exception("Não é permitido alterar invoice aprovada.");
+            }
+
+            invoice.AlterarVendedor(vendedor);
+
+           await _invoiceRepository.UpdateAsync(invoice);
         }
     }
 }

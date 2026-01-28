@@ -10,5 +10,6 @@ namespace Domain.Interfaces
         Task<IReadOnlyList<Invoice>> GetByPeriodoAsync(DateTime inicio, DateTime fim);
         Task AddAsync(Invoice invoice);
         Task UpdateAsync(Invoice invoice);
+        Task<string> GetUltimoNumeroAsync();
     }
 }

@@ -11,5 +11,6 @@ namespace Domain.Interfaces
         Task<IReadOnlyList<Comissao>> GetPagasAsync();
         Task AddAsync(Comissao comissao);
         Task UpdateAsync(Comissao comissao);
+        Task<bool> ExisteComissaoParaVendedor(Guid vendedorId);
     }
 }

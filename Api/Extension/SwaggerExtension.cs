@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi;
+﻿using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Api.Extension
 {
@@ -40,11 +41,11 @@ namespace Api.Extension
         }
     }
 
-    public class TagDocumentFilter : Swashbuckle.AspNetCore.SwaggerGen.IDocumentFilter
+    public class TagDocumentFilter : IDocumentFilter
     {
-        public void Apply(OpenApiDocument swaggerDoc, Swashbuckle.AspNetCore.SwaggerGen.DocumentFilterContext context)
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            swaggerDoc.Tags = new HashSet<OpenApiTag>
+            swaggerDoc.Tags = new List<OpenApiTag>
             {
                 new OpenApiTag { Name = "Vendedores", Description = "Cadastro e gerenciamento de vendedores" },
                 new OpenApiTag { Name = "Invoices", Description = "CRUD de Invoices e cálculo de comissão" },

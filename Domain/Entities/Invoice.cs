@@ -53,10 +53,9 @@ namespace Domain.Entities
             Status = StatusInvoice.Cancelada;
         }
 
-        public void AlterarVendedor(Vendedor vendedor)
+        public void AlterarVendedor(Guid vendedorId)
         {
-            Vendedor = vendedor;
-            VendedorId = vendedor.Id;
+            VendedorId = vendedorId;
         }
     }
 }

@@ -13,10 +13,9 @@ builder.Services.AddInfra();
 builder.Services.AddApiDoc();
 
 builder.Services.AddDbContext<PortalDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
-builder.Services.AddInfra();
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
 
 var app = builder.Build();
 

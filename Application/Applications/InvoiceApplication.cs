@@ -61,8 +61,6 @@ namespace Application.Applications
         {
             var invoice = await _invoiceRepository.GetByIdAsync(dto.Id);
 
-            var vendedor = await _vendedorRepository.GetByIdAsync(dto.vendedorId);
-
             if (invoice == null)
             {
                 throw new Exception("Invoice não encontrado");
@@ -73,9 +71,9 @@ namespace Application.Applications
                 throw new Exception("Não é permitido alterar invoice aprovada.");
             }
 
-            invoice.AlterarVendedor(vendedor);
+            invoice.AlterarVendedor(dto.vendedorId);
 
-           await _invoiceRepository.UpdateAsync(invoice);
+            await _invoiceRepository.UpdateAsync(invoice);
         }
     }
 }

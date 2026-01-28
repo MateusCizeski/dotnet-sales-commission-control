@@ -15,14 +15,14 @@ namespace Infra.Migrations
                 name: "vendedores",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    NomeCompleto = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Cpf = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
-                    Email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Telefone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    PercentualComissao = table.Column<decimal>(type: "numeric", nullable: false),
-                    Ativo = table.Column<bool>(type: "boolean", nullable: false),
-                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NomeCompleto = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Cpf = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Telefone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    PercentualComissao = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Ativo = table.Column<bool>(type: "bit", nullable: false),
+                    DataCadastro = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,15 +33,15 @@ namespace Infra.Migrations
                 name: "invoices",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    NumeroInvoice = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    DataEmissao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    VendedorId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Cliente = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    CnpjCpfCliente = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NumeroInvoice = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    DataEmissao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VendedorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Cliente = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CnpjCpfCliente = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
                     ValorTotal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    Observacoes = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true)
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Observacoes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -58,14 +58,14 @@ namespace Infra.Migrations
                 name: "comissoes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    InvoiceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InvoiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ValorBase = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     PercentualAplicado = table.Column<decimal>(type: "numeric(5,2)", nullable: false),
                     ValorComissao = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    DataCalculo = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DataPagamento = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DataCalculo = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DataPagamento = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {

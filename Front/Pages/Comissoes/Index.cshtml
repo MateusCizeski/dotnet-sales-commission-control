@@ -1,4 +1,47 @@
 ﻿@page
 @model Front.Pages.Comissoes.IndexModel
 @{
+    ViewData["Title"] = "Comissões";
 }
+
+<h1>Comissões</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Invoice</th>
+            <th>Vendedor</th>
+            <th>Valor Base</th>
+            <th>Percentual %</th>
+            <th>Valor Comissão</th>
+            <th>Status</th>
+            <th>Data Cálculo</th>
+            <th>Data Pagamento</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var comissao in Model.Comissoes)
+        {
+            <tr>
+                <td>@comissao.Invoice.NumeroInvoice</td>
+                <td>@comissao.Invoice.Vendedor.NomeCompleto</td>
+                <td>@comissao.ValorBase.ToString("C")</td>
+                <td>@comissao.PercentualAplicado</td>
+                <td>@comissao.ValorComissao.ToString("C")</td>
+                <td>@comissao.Status</td>
+                <td>@comissao.DataCalculo.ToShortDateString()</td>
+                <td>@(comissao.DataPagamento?.ToShortDateString() ?? "-")</td>
+                <td>
+                    @if (comissao.Status == Domain.Enums.StatusComissao.Pendente)
+                    {
+                        <form method="post" asp-page-handler="Pagar">
+                            <input type="hidden" name="id" value="@comissao.Id" />
+                            <button type="submit" class="btn btn-sm btn-success">Marcar como Paga</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

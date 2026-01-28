@@ -40,6 +40,13 @@ namespace Infra.Data.Repositories
             return await _context.Invoices.Where(i => i.VendedorId == vendedorId).ToListAsync();
         }
 
+        public async Task<string> GetUltimoNumeroAsync()
+        {
+            var ultimoInvoice = await _context.Invoices.OrderByDescending(i => i.DataEmissao).FirstOrDefaultAsync();
+
+            return ultimoInvoice?.NumeroInvoice;
+        }
+
         public async Task UpdateAsync(Invoice invoice)
         {
             _context.Invoices.Update(invoice);

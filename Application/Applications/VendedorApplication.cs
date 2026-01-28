@@ -2,21 +2,28 @@
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
+using System.Text.RegularExpressions;
 
 namespace Application.Applications
 {
     public class VendedorApplication : IVendedorApplication
     {
         private IVendedorRepository _vendedorRepository;
+        private IComissaoRepository _comissaoRepository;
+        private IInvoiceRepository _invoiceRepository;
 
-        public VendedorApplication(IVendedorRepository vendedorRepository)
+        public VendedorApplication(IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository, IInvoiceRepository invoiceRepository)
         {
             _vendedorRepository = vendedorRepository;
+            _comissaoRepository = comissaoRepository;
+            _invoiceRepository = invoiceRepository;
         }
 
         public async Task<Guid> CriarAsync(CreateVendedorDto dto)
         {
-            var vendedor = new Vendedor(dto.Nome, dto.Documento, dto.Email, dto.PercentualComissao);
+            var cpfNumeros = Regex.Replace(dto.Cpf, "[^0-9]", "");
+
+            var vendedor = new Vendedor(dto.NomeCompleto, cpfNumeros, dto.Email, dto.PercentualComissao, dto.Telefone);
 
             await _vendedorRepository.AddAsync(vendedor);
             return vendedor.Id;
@@ -25,6 +32,18 @@ namespace Application.Applications
         public async Task InativarAsync(Guid id)
         {
             var vendedor = await _vendedorRepository.GetByIdAsync(id);
+
+            if (vendedor == null)
+            {
+                throw new Exception("Vendedor não encontrado");
+            }
+
+            var possuiComissao = await _comissaoRepository.ExisteComissaoParaVendedor(id);
+
+            if (possuiComissao)
+            {
+                throw new Exception("Não é permitido inativar um vendedor que possui comissões registradas");
+            }
 
             vendedor.Inativar();
             await _vendedorRepository.UpdateAsync(vendedor);
@@ -56,6 +75,25 @@ namespace Application.Applications
                 Nome = v.NomeCompleto,
                 PercentualComissao = v.PercentualComissao
             }).ToList();
+        }
+
+        public async Task Remover(Guid id)
+        {
+            var vendedor = await _vendedorRepository.GetByIdAsync(id);
+
+            if (vendedor == null)
+            {
+                throw new Exception("Vendedor não encontrado");
+            }
+
+            var possuiComissao = await _comissaoRepository.ExisteComissaoParaVendedor(id);
+
+            if (possuiComissao)
+            {
+                throw new Exception("Não é permitido excluir um vendedor que possui comissões registradas");
+            }
+
+            await _vendedorRepository.RemoveAsync(vendedor);
         }
     }
 }

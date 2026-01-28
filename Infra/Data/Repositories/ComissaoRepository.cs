@@ -51,5 +51,10 @@ namespace Infra.Data.Repositories
             _context.Comissoes.Update(comissao);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> ExisteComissaoParaVendedor(Guid vendedorId)
+        {
+            return await _context.Comissoes.AnyAsync(c => c.Invoice.VendedorId == vendedorId);
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace Infra.DependencyInjection
         public static IServiceCollection AddInfra(
             this IServiceCollection services)
         {
+
             services.AddScoped<IVendedorRepository, VendedorRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             services.AddScoped<IComissaoRepository, ComissaoRepository>();

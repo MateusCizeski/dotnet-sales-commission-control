@@ -52,5 +52,11 @@ namespace Domain.Entities
         {
             Status = StatusInvoice.Cancelada;
         }
+
+        public void AlterarVendedor(Vendedor vendedor)
+        {
+            Vendedor = vendedor;
+            VendedorId = vendedor.Id;
+        }
     }
 }

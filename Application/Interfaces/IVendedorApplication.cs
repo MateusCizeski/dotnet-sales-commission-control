@@ -8,5 +8,6 @@ namespace Application.Interfaces
         Task InativarAsync(Guid id);
         Task<VendedorDto> ObterPorIdAsync(Guid id);
         Task<IReadOnlyList<VendedorDto>> ObterTodosAsync();
+        Task Remover(Guid id);
     }
 }

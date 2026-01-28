@@ -60,8 +60,8 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut("{id:guid}/inativar")]
-        public async Task<IActionResult> Inativar(Guid id)
+        [HttpPut("{id}/inativar")]
+        public async Task<IActionResult> Inativar([FromRoute] Guid id)
         {
             try
             {
@@ -69,6 +69,21 @@ namespace Api.Controllers
                 return NoContent();
             }
             catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{id}/remover")]
+        public async Task<IActionResult> Remover([FromRoute] Guid id)
+        {
+            try
+            {
+                await _vendedorApplication.Remover(id);
+
+                return NoContent();
+            }
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }

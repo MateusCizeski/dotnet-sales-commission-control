@@ -6,5 +6,6 @@ namespace Application.Interfaces
     {
         Task<Guid> CriarAsync(CreateInvoiceDto dto);
         Task AprovarAsync(Guid id);
+        Task UpdateAsync(UpdateInvoiceDto dto);
     }
 }

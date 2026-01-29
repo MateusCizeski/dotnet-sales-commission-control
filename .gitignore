@@ -21,6 +21,7 @@ obj/
 Thumbs.db
 
 ## Environment
+appsettings.json
 appsettings.Development.json
 appsettings.Production.json
 

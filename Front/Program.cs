@@ -16,8 +16,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
-app.MapRazorPages().WithStaticAssets();
+app.MapRazorPages();
 app.MapFallbackToPage("/Dashboard/Index");
 
 app.Run();

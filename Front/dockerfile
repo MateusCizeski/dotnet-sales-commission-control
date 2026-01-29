@@ -1,0 +1,24 @@
+# =========================
+# BUILD
+# =========================
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY Front/Front.csproj Front/
+RUN dotnet restore Front/Front.csproj
+
+COPY . .
+WORKDIR /src/Front
+RUN dotnet publish -c Release -o /app/publish
+
+# =========================
+# RUNTIME
+# =========================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "Front.dll"]

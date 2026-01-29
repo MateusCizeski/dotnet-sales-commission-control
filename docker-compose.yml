@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    container_name: api
+    depends_on:
+      - sqlserver
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: >
+        Server=sqlserver,1433;
+        Database=ComissoesDb;
+        User Id=sa;
+        Password=Your_password123;
+        TrustServerCertificate=True;
+    ports:
+      - "5000:8080"
+
+  front:
+    build:
+      context: .
+      dockerfile: Front/Dockerfile
+    container_name: front
+    depends_on:
+      - api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ApiSettings__BaseUrl: http://api:8080
+    ports:
+      - "7000:8080"
+
+volumes:
+  sql_data:

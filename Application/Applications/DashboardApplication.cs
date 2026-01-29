@@ -2,7 +2,7 @@
 using Application.Interfaces;
 using Domain.Enums;
 using Domain.Interfaces;
-using Infra.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Applications
 {
@@ -17,51 +17,92 @@ namespace Application.Applications
             _comissaoRepository = comissaoRepository;
         }
 
-        public async Task<ComissaoVendedorDto> ObterComissoesPorVendedorAsync(Guid vendedorId)
+        public async Task<InvoiceSummaryDto> ObterResumoInvoicesAsync(ObterResumoDto dto)
         {
-            var comissoes = await _comissaoRepository.GetByVendedorIdAsync(vendedorId);
-            if (!comissoes.Any()) return new ComissaoVendedorDto { VendedorId = vendedorId };
+            var invoicesQuery = _invoiceRepository.Query();
+            var comissoesQuery = _comissaoRepository.Query();
 
-            var vendedor = comissoes.First().Invoice.Vendedor;
-
-            var dto = new ComissaoVendedorDto
+            if (dto.startDate.HasValue)
             {
-                VendedorId = vendedorId,
-                NomeVendedor = vendedor.NomeCompleto,
-                TotalComissoes = comissoes.Sum(c => c.ValorComissao),
-                TotalPendentes = comissoes.Where(c => c.Status == StatusComissao.Pendente).Sum(c => c.ValorComissao),
-                TotalPagas = comissoes.Where(c => c.Status == StatusComissao.Paga).Sum(c => c.ValorComissao),
-                Comissoes = comissoes.Select(c => new ComissaoDetalheDto
+                invoicesQuery = invoicesQuery
+                    .Where(i => i.DataEmissao >= dto.startDate.Value.Date);
+            }
+
+            if (dto.endDate.HasValue)
+            {
+                invoicesQuery = invoicesQuery
+                    .Where(i => i.DataEmissao <= dto.endDate.Value.Date);
+            }
+
+            if (dto.vendedorId.HasValue)
+            {
+                invoicesQuery = invoicesQuery
+                    .Where(i => i.VendedorId == dto.vendedorId.Value);
+            }
+
+            if (dto.statusInvoice.HasValue)
+            {
+                invoicesQuery = invoicesQuery
+                    .Where(i => i.Status == dto.statusInvoice.Value);
+            }
+
+            var invoices = await invoicesQuery.ToListAsync();
+
+            var invoiceIds = invoices.Select(i => i.Id).ToList();
+
+            var comissoes = await comissoesQuery
+                .Where(c => invoiceIds.Contains(c.InvoiceId))
+                .ToListAsync();
+
+            var totalInvoices = invoices.Count;
+            var totalPendente = invoices.Count(i => i.Status == StatusInvoice.Pendente);
+            var totalAprovada = invoices.Count(i => i.Status == StatusInvoice.Aprovada);
+            var totalCancelada = invoices.Count(i => i.Status == StatusInvoice.Cancelada);
+
+            var valorTotalAprovadas = invoices
+                .Where(i => i.Status == StatusInvoice.Aprovada)
+                .Sum(i => i.ValorTotal);
+
+            var invoicesUltimos30Dias = invoices
+                .Count(i => i.DataEmissao >= DateTime.UtcNow.AddDays(-30));
+
+            var totalComissoesPendentes = comissoes
+                .Where(c => c.Status == StatusComissao.Pendente)
+                .Sum(c => c.ValorComissao);
+
+            var totalComissoesPagas = comissoes
+                .Where(c => c.Status == StatusComissao.Paga)
+                .Sum(c => c.ValorComissao);
+
+            var topVendedores = comissoes
+                .Where(c => c.Invoice != null)
+                .GroupBy(c => new
                 {
-                    Id = c.Id,
-                    InvoiceId = c.InvoiceId,
-                    ValorComissao = c.ValorComissao,
-                    DataCriacao = c.DataCalculo,
-                    Paga = c.Status == StatusComissao.Paga
-                }).ToList()
-            };
+                    c.Invoice.VendedorId,
+                    c.Invoice.Vendedor.NomeCompleto
+                })
+                .Select(g => new VendedorDashboardDto
+                {
+                    VendedorId = g.Key.VendedorId,
+                    NomeCompleto = g.Key.NomeCompleto,
+                    ComissaoTotal = g.Sum(c => c.ValorComissao)
+                })
+                .OrderByDescending(v => v.ComissaoTotal)
+                .Take(5)
+                .ToList();
 
-            return dto;
-        }
-
-        public async Task<InvoiceSummaryDto> ObterResumoInvoicesAsync()
-        {
-            var invoices = await _invoiceRepository.GetAllAsync();
-
-            var resumo = new InvoiceSummaryDto
+            return new InvoiceSummaryDto
             {
-                TotalInvoices = invoices.Count,
-                TotalPendente = invoices.Count(i => i.Status == Domain.Enums.StatusInvoice.Pendente),
-                TotalAprovada = invoices.Count(i => i.Status == Domain.Enums.StatusInvoice.Aprovada),
-                TotalCancelada = invoices.Count(i => i.Status == Domain.Enums.StatusInvoice.Cancelada),
-                ValorTotalAprovadas = invoices
-                    .Where(i => i.Status == Domain.Enums.StatusInvoice.Aprovada)
-                    .Sum(i => i.ValorTotal),
-                InvoicesUltimos30Dias = invoices
-                    .Count(i => i.DataEmissao >= DateTime.UtcNow.AddDays(-30))
+                TotalInvoices = totalInvoices,
+                TotalPendente = totalPendente,
+                TotalAprovada = totalAprovada,
+                TotalCancelada = totalCancelada,
+                ValorTotalAprovadas = valorTotalAprovadas,
+                InvoicesUltimos30Dias = invoicesUltimos30Dias,
+                TotalComissoesPendentes = totalComissoesPendentes,
+                TotalComissoesPagas = totalComissoesPagas,
+                TopVendedores = topVendedores
             };
-
-            return resumo;
         }
     }
 }

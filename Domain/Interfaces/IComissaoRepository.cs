@@ -12,5 +12,7 @@ namespace Domain.Interfaces
         Task AddAsync(Comissao comissao);
         Task UpdateAsync(Comissao comissao);
         Task<bool> ExisteComissaoParaVendedor(Guid vendedorId);
+        Task<IReadOnlyList<Comissao>> GetAllAsync();
+        IQueryable<Comissao> Query();
     }
 }

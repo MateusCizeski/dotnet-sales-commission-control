@@ -9,63 +9,41 @@
 <form method="get" class="mb-4 row g-2 align-items-end">
     <div class="col-md-3">
         <label>Data Início</label>
-        <input type="date" name="startDate" class="form-control"
+        <input type="date" name="FilterStartDate" class="form-control"
                value="@(Model.FilterStartDate?.ToString("yyyy-MM-dd"))" />
     </div>
+
     <div class="col-md-3">
         <label>Data Fim</label>
-        <input type="date" name="endDate" class="form-control"
+        <input type="date" name="FilterEndDate" class="form-control"
                value="@(Model.FilterEndDate?.ToString("yyyy-MM-dd"))" />
     </div>
+
     <div class="col-md-3">
         <label>Vendedor</label>
-        <select name="vendedorId" class="form-control">
+        <select name="FilterVendedorId" class="form-control">
             <option value="">Todos</option>
+
             @foreach (var v in Model.Vendedores)
             {
-                if (Model.FilterVendedorId.HasValue && v.Id == Model.FilterVendedorId.Value)
-                {
-                    <option value="@v.Id" selected>@v.NomeCompleto</option>
-                }
-                else
-                {
-                    <option value="@v.Id">@v.NomeCompleto</option>
-                }
+                <option value="@v.Id"
+                        selected="@(Model.FilterVendedorId == v.Id)">
+                    @v.NomeCompleto - CPF: @v.Cpf
+                </option>
             }
         </select>
     </div>
+
     <div class="col-md-3">
         <label>Status Invoice</label>
-        <select name="status" class="form-control">
+        <select name="FilterStatus" class="form-control">
             <option value="">Todos</option>
-            @if (Model.FilterStatus == "Pendente")
-            {
-                <option value="Pendente" selected>Pendente</option>
-            }
-            else
-            {
-                <option value="Pendente">Pendente</option>
-            }
-
-            @if (Model.FilterStatus == "Aprovada")
-            {
-                <option value="Aprovada" selected>Aprovada</option>
-            }
-            else
-            {
-                <option value="Aprovada">Aprovada</option>
-            }
-
-            @if (Model.FilterStatus == "Cancelada")
-            {
-                <option value="Cancelada" selected>Cancelada</option>
-            }
-            else
-            {
-                <option value="Cancelada">Cancelada</option>
-            }
+            <option value=1 selected="@(Model.FilterStatus == "Pendente")">Pendente</option>
+            <option value=2 selected="@(Model.FilterStatus == "Aprovada")">Aprovada</option>
+            <option value=3 selected="@(Model.FilterStatus == "Cancelada")">Cancelada</option>
         </select>
     </div>
+
     <div class="col-md-12 mt-2">
         <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
     </div>
@@ -78,18 +56,21 @@
             <h2>@Model.TotalInvoices</h2>
         </div>
     </div>
+
     <div class="col-md-3">
         <div class="card p-3 border-warning">
             <h5>Invoices Pendentes</h5>
             <h2>@Model.PendingInvoices</h2>
         </div>
     </div>
+
     <div class="col-md-3">
         <div class="card p-3 border-info">
             <h5>Valor Total Invoices Aprovadas</h5>
             <h2>@Model.TotalAprovadas.ToString("C")</h2>
         </div>
     </div>
+
     <div class="col-md-3">
         <div class="card p-3 border-success">
             <h5>Comissões Pendentes</h5>

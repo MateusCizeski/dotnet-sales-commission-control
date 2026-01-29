@@ -6,6 +6,36 @@ namespace Tests.Domain
     public class VendedorValidationTests
     {
         [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void NomeVazio_DeveLancarErro(string nome)
+        {
+            Assert.Throws<ArgumentNullException>(() =>
+                VendedorValidation.ValidarVendedor(nome, "12345678909", "teste@teste.com", 10)
+            );
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void CpfVazio_DeveLancarErro(string cpf)
+        {
+            Assert.Throws<ArgumentException>(() =>
+                VendedorValidation.ValidarVendedor("Nome", cpf, "teste@teste.com", 10)
+            );
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void EmailVazio_DeveLancarErro(string email)
+        {
+            Assert.Throws<ArgumentException>(() =>
+                VendedorValidation.ValidarVendedor("Nome", "12345678909", email, 10)
+            );
+        }
+
+        [Theory]
         [InlineData("12345678909")] // CPF válido
         public void CpfValido_DeveRetornarTrue(string cpf)
         {

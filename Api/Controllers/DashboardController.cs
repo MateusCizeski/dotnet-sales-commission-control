@@ -16,28 +16,13 @@ namespace Api.Controllers
         }
 
         [HttpGet("invoices/summary")]
-        public async Task<ActionResult<InvoiceSummaryDto>> ResumoInvoices()
+        public async Task<ActionResult<InvoiceSummaryDto>> ResumoInvoices([FromQuery] ObterResumoDto dto)
         {
             try
             {
-                var resumo = await _dashboardApplication.ObterResumoInvoicesAsync();
+                var resumo = await _dashboardApplication.ObterResumoInvoicesAsync(dto);
 
                 return Ok(resumo);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("comissoes/by-vendedor/{vendedorId}")]
-        public async Task<ActionResult<ComissaoVendedorDto>> ComissoesPorVendedor([FromRoute] Guid vendedorId)
-        {
-            try
-            {
-                var dto = await _dashboardApplication.ObterComissoesPorVendedorAsync(vendedorId);
-
-                return Ok(dto);
             }
             catch(Exception e)
             {

@@ -25,6 +25,11 @@ namespace Infra.Data.Repositories
             return await _context.Invoices.AsNoTracking().ToListAsync();
         }
 
+        public IQueryable<Invoice> Query()
+        {
+            return _context.Invoices.Include(i => i.Vendedor);
+        }
+
         public async Task<Invoice?> GetByIdAsync(Guid id)
         {
             return await _context.Invoices.Include(i => i.Vendedor).Include(i => i.Comissao).FirstOrDefaultAsync(i => i.Id == id);

@@ -14,8 +14,8 @@ namespace Api.Controllers
             _comissaoApplication = comissaoApplication;
         }
 
-        [HttpPut("{id:guid}/pagar")]
-        public async Task<IActionResult> MarcarComoPaga(Guid id)
+        [HttpPut("{id}/pagar")]
+        public async Task<IActionResult> MarcarComoPaga([FromRoute] Guid id)
         {
             try
             {
@@ -23,6 +23,20 @@ namespace Api.Controllers
                 return NoContent();
             }
             catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{id}/cancelar")]
+        public async Task<IActionResult> MarcarComoCancelada([FromRoute] Guid id)
+        {
+            try
+            {
+                await _comissaoApplication.MarcarComoCanceladaAsync(id);
+                return NoContent();
+            }
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }

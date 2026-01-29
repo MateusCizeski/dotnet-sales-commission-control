@@ -45,6 +45,22 @@ namespace Api.Controllers
             }
         }
 
+
+        [HttpPut("{id}/cancelar")]
+        public async Task<IActionResult> Cancelar([FromRoute] Guid id)
+        {
+            try
+            {
+                await _invoiceApplication.CancelarAsync(id);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateInvoiceDto dto)
         {

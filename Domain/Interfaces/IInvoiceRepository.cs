@@ -11,5 +11,6 @@ namespace Domain.Interfaces
         Task AddAsync(Invoice invoice);
         Task UpdateAsync(Invoice invoice);
         Task<string> GetUltimoNumeroAsync();
+        IQueryable<Invoice> Query();
     }
 }

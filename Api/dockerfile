@@ -1,0 +1,26 @@
+# =========================
+# BUILD
+# =========================
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# copia csproj e restaura dependências
+COPY Api/Api.csproj Api/
+RUN dotnet restore Api/Api.csproj
+
+# copia o restante
+COPY . .
+WORKDIR /src/Api
+RUN dotnet publish -c Release -o /app/publish
+
+# =========================
+# RUNTIME
+# =========================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "Api.dll"]

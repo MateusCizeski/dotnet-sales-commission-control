@@ -89,9 +89,7 @@ namespace Front.Pages.Dashboard
 
         private async Task<List<VendedorDropdownDto>> ObterVendedoresAsync(HttpClient client)
         {
-            var vendedores = await client.GetFromJsonAsync<List<VendedorDropdownDto>>(
-                "/api/vendedores"
-            );
+            var vendedores = await client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores");
 
             return vendedores ?? new List<VendedorDropdownDto>();
         }

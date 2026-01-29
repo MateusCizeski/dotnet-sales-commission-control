@@ -1,4 +1,34 @@
 ﻿@page
-@model Front.Pages.Vendedores.Index1Model
-@{
-}
+@model Front.Pages.Vendedores.CreateModel
+
+<h1>Novo Vendedor</h1>
+
+<form method="post" class="col-md-6">
+    <div class="mb-3">
+        <label>Nome Completo</label>
+        <input asp-for="Vendedor.NomeCompleto" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>CPF</label>
+        <input asp-for="Vendedor.Cpf" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <input asp-for="Vendedor.Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>% Comissão</label>
+        <input asp-for="Vendedor.PercentualComissao" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Telefone</label>
+        <input asp-for="Vendedor.Telefone" class="form-control" />
+    </div>
+
+    <button class="btn btn-success">Salvar</button>
+    <a asp-page="Index" class="btn btn-secondary">Voltar</a>
+</form>

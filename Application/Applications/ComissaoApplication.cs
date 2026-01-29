@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Applications
@@ -26,6 +27,11 @@ namespace Application.Applications
 
             comissao.Cancelar();
             await _comissaoRepository.UpdateAsync(comissao);
+        }
+
+        public Task<IReadOnlyList<Comissao>> GetAllAsync()
+        {
+            return _comissaoRepository.GetAllAsync();
         }
     }
 }

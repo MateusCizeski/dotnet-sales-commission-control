@@ -6,66 +6,7 @@
 
 <h1>Invoices</h1>
 
-<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
-    Nova Invoice
-</button>
-
-<div class="modal fade" id="createInvoiceModal" tabindex="-1" aria-labelledby="createInvoiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" asp-page-handler="Create">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createInvoiceModalLabel">Nova Invoice</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Vendedor</label>
-                        <select class="form-control" name="VendedorId" required>
-                            <option value="">Selecione</option>
-                            @foreach (var v in Model.Vendedores)
-                            {
-                                <option value="@v.Id">@v.NomeCompleto</option>
-                            }
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Cliente</label>
-                        <input type="text" class="form-control" name="Cliente" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">CNPJ/CPF Cliente</label>
-                        <input type="text" class="form-control" name="CnpjCpfCliente" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Valor Total</label>
-                        <input type="number" class="form-control" name="ValorTotal" step="0.01" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Data de Emissão</label>
-                        <input type="date" class="form-control" name="DataEmissao" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-control" name="Status" required>
-                            <option value="Pendente">Pendente</option>
-                            <option value="Aprovada">Aprovada</option>
-                            <option value="Cancelada">Cancelada</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Observações</label>
-                        <textarea class="form-control" name="Observacoes"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Criar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<a asp-page="Create" class="btn btn-success mb-3">Nova Invoice</a>
 
 <table class="table table-striped">
     <thead>
@@ -75,8 +16,8 @@
             <th>Cliente</th>
             <th>Valor</th>
             <th>Status</th>
-            <th>Data Emissão</th>
-            <th>Ações</th>
+            <th>Emissão</th>
+            <th style="width:260px">Ações</th>
         </tr>
     </thead>
     <tbody>
@@ -84,14 +25,33 @@
         {
             <tr>
                 <td>@invoice.NumeroInvoice</td>
-                <td>@invoice.VendedorNome</td>
+                <td>@invoice.Vendedor.NomeCompleto</td>
                 <td>@invoice.Cliente</td>
                 <td>@invoice.ValorTotal.ToString("C")</td>
                 <td>@invoice.Status</td>
                 <td>@invoice.DataEmissao.ToShortDateString()</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@invoice.Id" class="btn btn-sm btn-primary">Editar</a>
-                    <a asp-page="Details" asp-route-id="@invoice.Id" class="btn btn-sm btn-info">Detalhes</a>
+                <td class="d-flex gap-1">
+                    <a asp-page="Edit" asp-route-id="@invoice.Id"
+                       class="btn btn-sm btn-primary">
+                        Editar
+                    </a>
+
+                    @if (invoice.Status == Domain.Enums.StatusInvoice.Pendente)
+                    {
+                        <form method="post" asp-page-handler="Aprovar"
+                              asp-route-id="@invoice.Id">
+                            <button class="btn btn-sm btn-success">
+                                Aprovar
+                            </button>
+                        </form>
+
+                        <form method="post" asp-page-handler="Cancelar"
+                              asp-route-id="@invoice.Id">
+                            <button class="btn btn-sm btn-danger">
+                                Cancelar
+                            </button>
+                        </form>
+                    }
                 </td>
             </tr>
         }

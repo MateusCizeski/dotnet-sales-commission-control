@@ -1,4 +1,49 @@
-﻿@page
+﻿@page "{id:guid}"
 @model Front.Pages.Vendedores.EditModel
 @{
+    ViewData["Title"] = "Editar Vendedor";
+}
+
+<h1>Editar Vendedor</h1>
+
+@if (Model.Vendedor == null)
+{
+    <div class="alert alert-danger">
+        Vendedor não encontrado.
+    </div>
+}
+else
+{
+    <form method="post" class="col-md-6">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Nome Completo</label>
+            <input asp-for="Vendedor.Nome" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">CPF</label>
+            <input class="form-control" value="@Model.Cpf" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" value="@Model.Email" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Percentual de Comissão (%)</label>
+            <input asp-for="Vendedor.PercentualComissao"
+                   class="form-control"
+                   step="0.01" />
+        </div>
+
+        <button class="btn btn-primary">Salvar</button>
+        <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <div class="alert alert-warning mt-3">
+        ⚠️ Endpoint de edição ainda não implementado na API.
+    </div>
 }

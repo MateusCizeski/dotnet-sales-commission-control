@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Invoice;
+using Domain.Entities;
 
 namespace Application.Interfaces
 {
@@ -8,5 +9,6 @@ namespace Application.Interfaces
         Task AprovarAsync(Guid id);
         Task CancelarAsync(Guid id);
         Task UpdateAsync(UpdateInvoiceDto dto);
+        Task<IReadOnlyList<Invoice>> GetAllAsync();
     }
 }

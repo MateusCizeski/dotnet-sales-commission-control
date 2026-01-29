@@ -1,4 +1,48 @@
 ﻿@page
 @model Front.Pages.Invoices.CreateModel
 @{
+    ViewData["Title"] = "Nova Invoice";
 }
+
+<h1>Nova Invoice</h1>
+
+<form method="post" class="col-md-6">
+    <div class="mb-3">
+        <label>Vendedor</label>
+        <select asp-for="Invoice.VendedorId"
+                asp-items="Model.Vendedores"
+                class="form-select">
+            <option value="">Selecione</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Cliente</label>
+        <input asp-for="Invoice.Cliente" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>CNPJ/CPF Cliente</label>
+        <input asp-for="Invoice.CnpjCpfCliente" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Valor Total</label>
+        <input asp-for="Invoice.ValorTotal"
+               class="form-control"
+               step="0.01" />
+    </div>
+
+    <div class="mb-3">
+        <label>Data de Emissão</label>
+        <input asp-for="Invoice.DataEmissao" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Observações</label>
+        <textarea asp-for="Invoice.Observacoes" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-success">Salvar</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+</form>

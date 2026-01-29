@@ -6,48 +6,38 @@ namespace Front.Pages.Vendedores
 {
     public class IndexModel : PageModel
     {
-        public List<VendedorListDto> Vendedores { get; set; } = new();
+        private readonly HttpClient _client;
 
-        public async Task OnGetAsync()
+        public IndexModel(IHttpClientFactory factory)
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:5001");
-
-            //var list = await client.GetFromJsonAsync<List<VendedorListDto>>("/api/vendedores");
-            var list = new List<VendedorListDto>();
-            if (list != null) Vendedores = list;
+            _client = factory.CreateClient("Api");
         }
 
-        public async Task<IActionResult> OnPostCreateAsync([FromForm] CreateVendedorDto dto)
+        public List<VendedorDto> Vendedores { get; set; } = new();
+        public bool? FiltroAtivo { get; set; }
+
+        public async Task OnGetAsync(bool? ativo)
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            FiltroAtivo = ativo;
 
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:5001");
+            var lista = await _client.GetFromJsonAsync<List<VendedorDto>>("/api/vendedores") ?? [];
 
-            var response = await client.PostAsJsonAsync("/api/vendedores", dto);
-            if (response.IsSuccessStatusCode)
-            {
-                return RedirectToPage();
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Erro ao criar vendedor");
-                return Page();
-            }
+            if (ativo.HasValue)
+                lista = lista.Where(v => v.Ativo == ativo.Value).ToList();
+
+            Vendedores = lista;
         }
 
-        public class VendedorListDto
+        public async Task<IActionResult> OnPostInativarAsync(Guid id)
         {
-            public Guid Id { get; set; }
-            public string NomeCompleto { get; set; } = "";
-            public string Cpf { get; set; } = "";
-            public string Email { get; set; } = "";
-            public decimal PercentualComissao { get; set; }
-            public bool Ativo { get; set; }
+            await _client.PutAsync($"/api/vendedores/{id}/inativar", null);
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostRemoverAsync(Guid id)
+        {
+            await _client.PutAsync($"/api/vendedores/{id}/remover", null);
+            return RedirectToPage();
         }
     }
 }

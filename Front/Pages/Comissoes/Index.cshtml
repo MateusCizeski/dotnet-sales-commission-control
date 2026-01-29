@@ -6,38 +6,66 @@
 
 <h1>Comissões</h1>
 
+<form method="get" class="mb-3 d-flex gap-2 col-md-4">
+    <select name="status" class="form-select">
+        <option value="">Todos</option>
+        <option value="Pendente" selected="@(Model.FiltroStatus == "Pendente")">
+            Pendentes
+        </option>
+        <option value="Paga" selected="@(Model.FiltroStatus == "Paga")">
+            Pagas
+        </option>
+        <option value="Cancelada" selected="@(Model.FiltroStatus == "Cancelada")">
+            Canceladas
+        </option>
+    </select>
+
+    <button class="btn btn-outline-primary">Filtrar</button>
+</form>
+
 <table class="table table-striped">
     <thead>
         <tr>
             <th>Invoice</th>
             <th>Vendedor</th>
             <th>Valor Base</th>
-            <th>Percentual %</th>
+            <th>%</th>
             <th>Valor Comissão</th>
             <th>Status</th>
             <th>Data Cálculo</th>
             <th>Data Pagamento</th>
-            <th>Ações</th>
+            <th style="width:220px">Ações</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var comissao in Model.Comissoes)
+        @foreach (var c in Model.Comissoes)
         {
             <tr>
-                <td>@comissao.Invoice.NumeroInvoice</td>
-                <td>@comissao.Invoice.Vendedor.NomeCompleto</td>
-                <td>@comissao.ValorBase.ToString("C")</td>
-                <td>@comissao.PercentualAplicado</td>
-                <td>@comissao.ValorComissao.ToString("C")</td>
-                <td>@comissao.Status</td>
-                <td>@comissao.DataCalculo.ToShortDateString()</td>
-                <td>@(comissao.DataPagamento?.ToShortDateString() ?? "-")</td>
-                <td>
-                    @if (comissao.Status == Domain.Enums.StatusComissao.Pendente)
+                <td>@c.InvoiceNumero</td>
+                <td>@c.VendedorNome</td>
+                <td>@c.ValorBase.ToString("C")</td>
+                <td>@c.PercentualAplicado</td>
+                <td>@c.ValorComissao.ToString("C")</td>
+                <td>@c.Status</td>
+                <td>@c.DataCalculo.ToShortDateString()</td>
+                <td>@(c.DataPagamento?.ToShortDateString() ?? "-")</td>
+                <td class="d-flex gap-1">
+                    @if (c.Status == Domain.Enums.StatusComissao.Pendente)
                     {
-                        <form method="post" asp-page-handler="Pagar">
-                            <input type="hidden" name="id" value="@comissao.Id" />
-                            <button type="submit" class="btn btn-sm btn-success">Marcar como Paga</button>
+                        <form method="post"
+                              asp-page-handler="Pagar"
+                              asp-route-id="@c.Id">
+                            <button class="btn btn-sm btn-success">
+                                Pagar
+                            </button>
+                        </form>
+
+                        <form method="post"
+                              asp-page-handler="Cancelar"
+                              asp-route-id="@c.Id">
+                            <button class="btn btn-sm btn-danger">
+                                Cancelar
+                            </button>
                         </form>
                     }
                 </td>

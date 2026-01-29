@@ -1,4 +1,23 @@
-﻿@page
+﻿@page "{id:guid}"
 @model Front.Pages.Invoices.EditModel
-@{
-}
+
+<h1>Editar Invoice</h1>
+
+<form method="post" class="col-md-6">
+    <input type="hidden" asp-for="Invoice.Id" />
+
+    <div class="mb-3">
+        <label>Vendedor</label>
+        <select asp-for="Invoice.vendedorId"
+                asp-items="Model.Vendedores"
+                class="form-select">
+        </select>
+    </div>
+
+    <button class="btn btn-primary">Salvar</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<div class="alert alert-warning mt-3">
+    ⚠️ A API de update já existe, só ligar quando quiser.
+</div>

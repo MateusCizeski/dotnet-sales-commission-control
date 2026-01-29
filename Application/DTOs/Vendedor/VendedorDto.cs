@@ -7,5 +7,6 @@
         public string Documento { get; set; } = string.Empty;
         public decimal PercentualComissao { get; set; }
         public bool Ativo { get; set; }
+        public string Email { get; set; } = string.Empty;
     }
 }

@@ -57,6 +57,7 @@ namespace Application.Applications
                 Ativo = vendedor.Ativo,
                 Documento = vendedor.Cpf,
                 Nome = vendedor.NomeCompleto,
+                Email = vendedor.Email,
                 PercentualComissao = vendedor.PercentualComissao
             };
         }

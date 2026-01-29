@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Invoice;
 using Application.Interfaces;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -45,7 +46,6 @@ namespace Api.Controllers
             }
         }
 
-
         [HttpPut("{id}/cancelar")]
         public async Task<IActionResult> Cancelar([FromRoute] Guid id)
         {
@@ -69,6 +69,21 @@ namespace Api.Controllers
                 await _invoiceApplication.UpdateAsync(dto);
 
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ObterTodos()
+        {
+            try
+            {
+               var invoices = await _invoiceApplication.GetAllAsync();
+
+                return Ok(invoices);
             }
             catch (Exception e)
             {

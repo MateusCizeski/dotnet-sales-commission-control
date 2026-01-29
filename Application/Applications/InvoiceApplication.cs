@@ -106,5 +106,10 @@ namespace Application.Applications
 
             await _comissaoRepository.UpdateAsync(comissao);
         }
+
+        public Task<IReadOnlyList<Invoice>> GetAllAsync()
+        {
+            return _invoiceRepository.GetAllAsync();
+        }
     }
 }

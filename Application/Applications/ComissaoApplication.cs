@@ -16,7 +16,15 @@ namespace Application.Applications
         {
             var comissao = await _comissaoRepository.GetByIdAsync(id);
 
-            comissao.MarcarComoPaga();
+            comissao.Pagar();
+            await _comissaoRepository.UpdateAsync(comissao);
+        }
+
+        public async Task MarcarComoCanceladaAsync(Guid id)
+        {
+            var comissao = await _comissaoRepository.GetByIdAsync(id);
+
+            comissao.Cancelar();
             await _comissaoRepository.UpdateAsync(comissao);
         }
     }

@@ -21,6 +21,16 @@ namespace Infra.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<IReadOnlyList<Comissao>> GetAllAsync()
+        {
+            return await _context.Comissoes.Include(c => c.Invoice).ThenInclude(i => i.Vendedor).ToListAsync();
+        }
+
+        public IQueryable<Comissao> Query()
+        {
+            return _context.Comissoes.Include(c => c.Invoice).ThenInclude(i => i.Vendedor);
+        }
+
         public async Task<Comissao?> GetByIdAsync(Guid id)
         {
             return await _context.Comissoes.FindAsync(id);

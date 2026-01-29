@@ -8,5 +8,8 @@
         public int TotalCancelada { get; set; }
         public decimal ValorTotalAprovadas { get; set; }
         public int InvoicesUltimos30Dias { get; set; }
+        public decimal TotalComissoesPendentes { get; set; }
+        public decimal TotalComissoesPagas { get; set; }
+        public List<VendedorDashboardDto> TopVendedores { get; set; } = new();
     }
 }

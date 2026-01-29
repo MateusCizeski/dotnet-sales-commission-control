@@ -11,6 +11,7 @@ namespace Application.DependencyInjection
             services.AddScoped<IVendedorApplication, VendedorApplication>();
             services.AddScoped<IInvoiceApplication, InvoiceApplication>();
             services.AddScoped<IComissaoApplication, ComissaoApplication>();
+            services.AddScoped<IDashboardApplication, DashboardApplication>();
 
             return services;
         }

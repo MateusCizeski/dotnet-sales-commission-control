@@ -28,7 +28,7 @@ namespace Domain.Entities
             DataCalculo = DateTime.UtcNow;
         }
 
-        public void MarcarComoPaga()
+        public void Pagar()
         {
             Status = StatusComissao.Paga;
             DataPagamento = DateTime.UtcNow;
@@ -37,6 +37,15 @@ namespace Domain.Entities
         public void Cancelar()
         {
             Status = StatusComissao.Cancelada;
+        }
+
+        public void AtualizarValores(decimal valorBase, decimal percentual, decimal valorComissao)
+        {
+            ValorBase = valorBase;
+            PercentualAplicado = percentual;
+            ValorComissao = valorComissao;
+            DataCalculo = DateTime.UtcNow;
+            Status = StatusComissao.Pendente;
         }
     }
 }

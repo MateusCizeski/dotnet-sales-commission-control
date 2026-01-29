@@ -31,5 +31,17 @@ namespace Tests.Domain
                 InvoiceValidation.ValidarInvoice(vendedor, "Cliente", "00000000000", 100, DateTime.UtcNow, null)
             );
         }
+
+        [Fact]
+        public void VendedorInativo_DeveLancarErro()
+        {
+            var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+
+            vendedor.Inativar();
+
+            Assert.Throws<ArgumentException>(() =>
+                InvoiceValidation.ValidarInvoice(vendedor, "Cliente", "12345678909", 100, DateTime.UtcNow, null)
+            );
+        }
     }
 }

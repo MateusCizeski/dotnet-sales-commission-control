@@ -30,6 +30,14 @@ namespace Application.Applications
             await _invoiceRepository.UpdateAsync(invoice);
         }
 
+        public async Task CancelarAsync(Guid id)
+        {
+            var invoice = await _invoiceRepository.GetByIdAsync(id);
+
+            invoice.Cancelar();
+            await _invoiceRepository.UpdateAsync(invoice);
+        }
+
         public async Task<Guid> CriarAsync(CreateInvoiceDto dto)
         {
             var vendedor = await _vendedorRepository.GetByIdAsync(dto.VendedorId);
@@ -66,7 +74,7 @@ namespace Application.Applications
                 throw new Exception("Invoice não encontrado");
             }
 
-            if(invoice.Status == StatusInvoice.Aprovada)
+            if (invoice.Status == StatusInvoice.Aprovada)
             {
                 throw new Exception("Não é permitido alterar invoice aprovada.");
             }
@@ -74,6 +82,29 @@ namespace Application.Applications
             invoice.AlterarVendedor(dto.vendedorId);
 
             await _invoiceRepository.UpdateAsync(invoice);
+            await AtualizarComissaoAsync(invoice);
+        }
+
+        private async Task AtualizarComissaoAsync(Invoice invoice)
+        {
+            var comissao = await _comissaoRepository.GetByInvoiceIdAsync(invoice.Id);
+
+            if (comissao == null)
+            {
+                throw new Exception("Comissão não encontrada para esta invoice.");
+            }
+
+            var vendedor = await _vendedorRepository.GetByIdAsync(invoice.VendedorId);
+            var valorComissao = Math.Round(invoice.ValorTotal * (vendedor.PercentualComissao / 100), 2);
+
+
+            comissao.AtualizarValores(
+                invoice.ValorTotal,
+                vendedor.PercentualComissao,
+                valorComissao
+            );
+
+            await _comissaoRepository.UpdateAsync(comissao);
         }
     }
 }

@@ -54,7 +54,8 @@ namespace Front.Pages.Vendedores
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Erro ao atualizar vendedor");
+                var msg = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError("", $"Erro ao atualizar vendedor: {msg}");
                 return Page();
             }
 

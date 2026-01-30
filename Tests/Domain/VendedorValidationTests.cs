@@ -1,4 +1,6 @@
-﻿using Domain.Validation;
+﻿using Domain.Entities;
+using Domain.Exceptions;
+using Domain.Validation;
 using Xunit;
 
 namespace Tests.Domain
@@ -8,43 +10,103 @@ namespace Tests.Domain
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void NomeVazio_DeveLancarErro(string nome)
+        public void CriarVendedor_NomeInvalido_DeveLancarDomainException(string nome)
         {
-            Assert.Throws<ArgumentNullException>(() =>
-                VendedorValidation.ValidarVendedor(nome, "12345678909", "teste@teste.com", 10)
-            );
+            var ex = Assert.Throws<DomainException>(() =>  new Vendedor(nome, "12345678909", "teste@teste.com", 10));
+            Assert.Equal("Nome completo é obrigatório", ex.Message);
         }
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void CpfVazio_DeveLancarErro(string cpf)
+        [InlineData("11111111111")]
+        public void CriarVendedor_CpfInvalido_DeveLancarDomainException(string cpf)
         {
-            Assert.Throws<ArgumentException>(() =>
-                VendedorValidation.ValidarVendedor("Nome", cpf, "teste@teste.com", 10)
-            );
+            var ex = Assert.Throws<DomainException>(() => new Vendedor("Nome", cpf, "teste@teste.com", 10));
+            Assert.Equal("CPF inválido", ex.Message);
         }
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void EmailVazio_DeveLancarErro(string email)
+        [InlineData("emailinvalido")]
+        public void CriarVendedor_EmailInvalido_DeveLancarDomainException(string email)
         {
-            Assert.Throws<ArgumentException>(() =>
-                VendedorValidation.ValidarVendedor("Nome", "12345678909", email, 10)
-            );
+            var ex = Assert.Throws<DomainException>(() => new Vendedor("Nome", "12345678909", email, 10));
+            Assert.Equal("Email inválido", ex.Message);
         }
 
         [Theory]
-        [InlineData("12345678909")] // CPF válido
+        [InlineData(-1)]
+        [InlineData(16)]
+        public void CriarVendedor_PercentualInvalido_DeveLancarDomainException(decimal percentual)
+        {
+            var ex = Assert.Throws<DomainException>(() => new Vendedor("Nome", "12345678909", "teste@teste.com", percentual));
+            Assert.Equal("Percentual deve estar entre 0% e 15%", ex.Message);
+        }
+
+        [Fact]
+        public void CriarVendedor_Valido_DeveCriarComSucesso()
+        {
+            var vendedor = new Vendedor("Nome Teste", "12345678909", "teste@teste.com", 10);
+
+            Assert.NotNull(vendedor);
+            Assert.Equal("Nome Teste", vendedor.NomeCompleto);
+            Assert.Equal("12345678909", vendedor.Cpf);
+            Assert.Equal("teste@teste.com", vendedor.Email);
+            Assert.Equal(10, vendedor.PercentualComissao);
+            Assert.True(vendedor.Ativo);
+        }
+
+        [Fact]
+        public void AtualizarDados_Valido_DeveAtualizar()
+        {
+            var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+            vendedor.AtualizarDados("Nome Atualizado", 12);
+
+            Assert.Equal("Nome Atualizado", vendedor.NomeCompleto);
+            Assert.Equal(12, vendedor.PercentualComissao);
+        }
+
+        [Fact]
+        public void Inativar_DeveSetarAtivoFalse()
+        {
+            var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+            vendedor.Inativar();
+
+            Assert.False(vendedor.Ativo);
+        }
+
+        [Fact]
+        public void Ativar_DeveSetarAtivoTrue()
+        {
+            var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+            vendedor.Inativar();
+            vendedor.Ativar();
+
+            Assert.True(vendedor.Ativo);
+        }
+
+        [Fact]
+        public void GarantirQueEstaAtivo_VendedorInativo_DeveLancarDomainException()
+        {
+            var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+            vendedor.Inativar();
+
+            var ex = Assert.Throws<DomainException>(() => vendedor.GarantirQueEstaAtivo());
+            Assert.Equal("Vendedor inativo", ex.Message);
+        }
+
+        [Theory]
+        [InlineData("12345678909")]
         public void CpfValido_DeveRetornarTrue(string cpf)
         {
             Assert.True(CpfValidator.CpfIsValid(cpf));
         }
 
         [Theory]
-        [InlineData("11111111111")] // CPF inválido
-        [InlineData("")] // vazio
+        [InlineData("11111111111")]
+        [InlineData("")]
         public void CpfInvalido_DeveRetornarFalse(string cpf)
         {
             Assert.False(CpfValidator.CpfIsValid(cpf));
@@ -63,28 +125,6 @@ namespace Tests.Domain
         public void EmailInvalido_DeveRetornarFalse(string email)
         {
             Assert.False(EmailValidator.EmailIsValid(email));
-        }
-
-        [Theory]
-        [InlineData(0)]
-        [InlineData(10)]
-        [InlineData(15)]
-        public void PercentualValido_DevePassar(decimal percentual)
-        {
-            var ex = Record.Exception(() =>
-                VendedorValidation.ValidarVendedor("Nome", "12345678909", "teste@teste.com", percentual)
-            );
-            Assert.Null(ex);
-        }
-
-        [Theory]
-        [InlineData(-1)]
-        [InlineData(16)]
-        public void PercentualInvalido_DeveLancarErro(decimal percentual)
-        {
-            Assert.Throws<ArgumentException>(() =>
-                VendedorValidation.ValidarVendedor("Nome", "12345678909", "teste@teste.com", percentual)
-            );
         }
     }
 }

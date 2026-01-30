@@ -1,6 +1,7 @@
 using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json.Serialization;
 
 namespace Front.Pages.Comissoes
 {
@@ -50,6 +51,7 @@ namespace Front.Pages.Comissoes
     public class ComissaoListDto
     {
         public Guid Id { get; set; }
+        [JsonPropertyName("numeroInvoice")]
         public string InvoiceNumero { get; set; } = "";
         public string VendedorNome { get; set; } = "";
         public decimal ValorBase { get; set; }

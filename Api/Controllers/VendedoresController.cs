@@ -74,6 +74,34 @@ namespace Api.Controllers
             }
         }
 
+        [HttpPut("{id}/ativar")]
+        public async Task<IActionResult> Ativar([FromRoute] Guid id)
+        {
+            try
+            {
+                await _vendedorApplication.AtivarAsync(id);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Atualizar([FromRoute] Guid id, [FromBody] UpdateVendedorDto dto)
+        {
+            try
+            {
+                await _vendedorApplication.Atualizar(id, dto);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPut("{id}/remover")]
         public async Task<IActionResult> Remover([FromRoute] Guid id)
         {

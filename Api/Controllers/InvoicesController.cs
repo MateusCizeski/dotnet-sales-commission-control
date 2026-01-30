@@ -61,12 +61,12 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateInvoiceDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateInvoiceDto dto)
         {
             try
             {
-                await _invoiceApplication.UpdateAsync(dto);
+                await _invoiceApplication.UpdateAsync(id, dto);
 
                 return NoContent();
             }
@@ -77,11 +77,26 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObterTodos()
+        public async Task<IActionResult> ObterTodos([FromQuery] Guid? vendedorId)
         {
             try
             {
-               var invoices = await _invoiceApplication.GetAllAsync();
+               var invoices = await _invoiceApplication.GetAllAsync(vendedorId);
+
+                return Ok(invoices);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObterPorId([FromRoute] Guid id)
+        {
+            try
+            {
+                var invoices = await _invoiceApplication.ObterPorIdAsync(id);
 
                 return Ok(invoices);
             }

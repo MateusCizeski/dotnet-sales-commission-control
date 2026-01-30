@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Invoice;
+using Application.DTOs.Vendedor;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
@@ -42,10 +43,22 @@ namespace Application.Applications
         {
             var vendedor = await _vendedorRepository.GetByIdAsync(dto.VendedorId);
 
-            var ultimoNumero = await _invoiceRepository.GetUltimoNumeroAsync();
-            var novoNumero = GerarProximoNumero(ultimoNumero);
+            if (vendedor == null)
+            {
+                throw new Exception("Vendedor não encontrado");
+            }
 
-            var invoice = new Invoice(vendedor, novoNumero, dto.DataEmissao, dto.Cliente, dto.CnpjCpfCliente, dto.ValorTotal, dto.Observacoes);
+            var numero = await _invoiceRepository.GetProximoNumeroAsync();
+
+            var invoice = new Invoice(
+                vendedor,
+                numero,
+                dto.DataEmissao,
+                dto.Cliente,
+                dto.CnpjCpfCliente,
+                dto.ValorTotal,
+                dto.Observacoes
+            );
 
             var comissao = _comissaoService.Calcular(invoice, vendedor);
 
@@ -55,19 +68,9 @@ namespace Application.Applications
             return invoice.Id;
         }
 
-        private string GerarProximoNumero(string ultimoNumero)
+        public async Task UpdateAsync(Guid id, UpdateInvoiceDto dto)
         {
-            if (string.IsNullOrEmpty(ultimoNumero)) return "INV-0001";
-
-            var numero = int.Parse(ultimoNumero.Substring(4));
-            numero++;
-
-            return $"INV-{numero:D4}";
-        }
-
-        public async Task UpdateAsync(UpdateInvoiceDto dto)
-        {
-            var invoice = await _invoiceRepository.GetByIdAsync(dto.Id);
+            var invoice = await _invoiceRepository.GetByIdAsync(id);
 
             if (invoice == null)
             {
@@ -79,9 +82,10 @@ namespace Application.Applications
                 throw new Exception("Não é permitido alterar invoice aprovada.");
             }
 
-            invoice.AlterarVendedor(dto.vendedorId);
+            invoice.AlterarVendedor(dto.VendedorId);
+            invoice.AlterarValorTotal(dto.ValorTotal);
 
-            await _invoiceRepository.UpdateAsync(invoice);
+            await _invoiceRepository.SaveChangesAsync();
             await AtualizarComissaoAsync(invoice);
         }
 
@@ -107,9 +111,25 @@ namespace Application.Applications
             await _comissaoRepository.UpdateAsync(comissao);
         }
 
-        public Task<IReadOnlyList<Invoice>> GetAllAsync()
+        public Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId)
         {
-            return _invoiceRepository.GetAllAsync();
+            return _invoiceRepository.GetAllAsync(vendedorId);
+        }
+
+        public async Task<InvoiceEditDto> ObterPorIdAsync(Guid id)
+        {
+            var invoice = await _invoiceRepository.GetByIdAsync(id);
+
+            return new InvoiceEditDto
+            {
+                Id = invoice.Id,
+                Numero = invoice.NumeroInvoice,
+                Cliente = invoice.Cliente,
+                DataEmissao = invoice.DataEmissao,
+                Status = invoice.Status.ToString(),
+                VendedorId = invoice.VendedorId,
+                ValorTotal = invoice.ValorTotal
+            };
         }
     }
 }

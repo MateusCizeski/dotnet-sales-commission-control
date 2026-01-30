@@ -8,6 +8,27 @@
 
 <a asp-page="Create" class="btn btn-success mb-3">Nova Invoice</a>
 
+<form method="get" class="mb-3 row g-2 align-items-end">
+    <div class="col-md-4">
+        <label>Vendedor</label>
+        <select name="FilterVendedorId" class="form-control">
+            <option value="">Todos</option>
+
+            @foreach (var v in Model.Vendedores)
+            {
+                <option value="@v.Id"
+                        selected="@(Model.FilterVendedorId == v.Id)">
+                    @v.NomeCompleto
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary">Filtrar</button>
+    </div>
+</form>
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -31,21 +52,24 @@
                 <td>@invoice.Status</td>
                 <td>@invoice.DataEmissao.ToShortDateString()</td>
                 <td class="d-flex gap-1">
-                    <a asp-page="Edit" asp-route-id="@invoice.Id"
+                    <a asp-page="Edit"
+                       asp-route-id="@invoice.Id"
                        class="btn btn-sm btn-primary">
                         Editar
                     </a>
 
                     @if (invoice.Status == Domain.Enums.StatusInvoice.Pendente)
                     {
-                        <form method="post" asp-page-handler="Aprovar"
+                        <form method="post"
+                              asp-page-handler="Aprovar"
                               asp-route-id="@invoice.Id">
                             <button class="btn btn-sm btn-success">
                                 Aprovar
                             </button>
                         </form>
 
-                        <form method="post" asp-page-handler="Cancelar"
+                        <form method="post"
+                              asp-page-handler="Cancelar"
                               asp-route-id="@invoice.Id">
                             <button class="btn btn-sm btn-danger">
                                 Cancelar

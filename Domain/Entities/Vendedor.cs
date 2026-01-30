@@ -43,5 +43,13 @@ namespace Domain.Entities
         {
             return Ativo; 
         }
+
+        public void AtualizarVendedor(Vendedor vendedor, string nome, decimal percentualComissao)
+        {
+            VendedorValidation.ValidarVendedor(nome, vendedor.Cpf, vendedor.Email, percentualComissao);
+
+            NomeCompleto = nome;
+            PercentualComissao = percentualComissao;
+        }
     }
 }

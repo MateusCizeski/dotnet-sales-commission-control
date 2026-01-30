@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.Comissao;
+using Domain.Entities;
 
 namespace Application.Interfaces
 {
@@ -6,6 +7,6 @@ namespace Application.Interfaces
     {
         Task MarcarComoPagaAsync(Guid id);
         Task MarcarComoCanceladaAsync(Guid id);
-        Task<IReadOnlyList<Comissao>> GetAllAsync();
+        Task<IReadOnlyList<ComissaoListDto>> GetAllAsync();
     }
 }

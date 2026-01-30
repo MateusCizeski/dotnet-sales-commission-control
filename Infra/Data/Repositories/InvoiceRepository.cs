@@ -20,9 +20,16 @@ namespace Infra.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IReadOnlyList<Invoice>> GetAllAsync()
+        public async Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId)
         {
-            return await _context.Invoices.AsNoTracking().ToListAsync();
+            var query = _context.Invoices.Include(i => i.Vendedor).AsQueryable();
+
+            if (vendedorId.HasValue)
+            {
+                query = query.Where(i => i.VendedorId == vendedorId.Value);
+            }
+
+            return await query.ToListAsync();
         }
 
         public IQueryable<Invoice> Query()
@@ -56,6 +63,30 @@ namespace Infra.Data.Repositories
         {
             _context.Invoices.Update(invoice);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<string> GetProximoNumeroAsync()
+        {
+            var connection = _context.Database.GetDbConnection();
+
+            if (connection.State != System.Data.ConnectionState.Open)
+            {
+                await connection.OpenAsync();
+            }
+
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT NEXT VALUE FOR InvoiceNumeroSeq";
+
+            var result = await command.ExecuteScalarAsync();
+
+            var numero = Convert.ToInt64(result);
+
+            return $"INV-{numero:D4}";
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            _context.SaveChanges();
         }
     }
 }

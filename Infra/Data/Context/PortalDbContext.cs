@@ -15,6 +15,12 @@ namespace Infra.Data.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Vendedor>(entity =>
+            {
+                entity.Property(v => v.PercentualComissao)
+                    .HasPrecision(5, 2);
+            });
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(PortalDbContext).Assembly);
         }
     }

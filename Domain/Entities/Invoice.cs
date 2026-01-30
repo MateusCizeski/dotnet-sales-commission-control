@@ -1,5 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.Validation;
+using System.Drawing;
 
 namespace Domain.Entities
 {
@@ -56,6 +57,16 @@ namespace Domain.Entities
         public void AlterarVendedor(Guid vendedorId)
         {
             VendedorId = vendedorId;
+        }
+
+        public void AlterarValorTotal(decimal valorToal)
+        {
+            if (valorToal <= 0)
+            {
+                throw new Exception("Valor da invoice deve ser maior que zero");
+            }
+
+            ValorTotal = valorToal;
         }
     }
 }

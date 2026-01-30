@@ -49,7 +49,7 @@
                 <td>@c.Status</td>
                 <td>@c.DataCalculo.ToShortDateString()</td>
                 <td>@(c.DataPagamento?.ToShortDateString() ?? "-")</td>
-                <td class="d-flex gap-1">
+                <td class="d-flex gap-1 align-items-center">
                     @if (c.Status == Domain.Enums.StatusComissao.Pendente)
                     {
                         <form method="post"
@@ -67,6 +67,14 @@
                                 Cancelar
                             </button>
                         </form>
+                    }
+                    else if (c.Status == Domain.Enums.StatusComissao.Paga)
+                    {
+                        <span class="badge bg-success">Paga</span>
+                    }
+                    else if (c.Status == Domain.Enums.StatusComissao.Cancelada)
+                    {
+                        <span class="badge bg-secondary">Cancelada</span>
                     }
                 </td>
             </tr>

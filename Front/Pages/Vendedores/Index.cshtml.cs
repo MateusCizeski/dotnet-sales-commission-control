@@ -1,6 +1,7 @@
 using Application.DTOs.Vendedor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text;
 
 namespace Front.Pages.Vendedores
 {
@@ -30,13 +31,19 @@ namespace Front.Pages.Vendedores
 
         public async Task<IActionResult> OnPostInativarAsync(Guid id)
         {
-            await _client.PutAsync($"/api/vendedores/{id}/inativar", null);
+            await _client.PutAsync($"/api/vendedores/{id}/inativar", new StringContent("{}", Encoding.UTF8, "application/json"));
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostAtivarAsync(Guid id)
+        {
+            await _client.PutAsync($"/api/vendedores/{id}/ativar", new StringContent("{}", Encoding.UTF8, "application/json"));
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostRemoverAsync(Guid id)
         {
-            await _client.PutAsync($"/api/vendedores/{id}/remover", null);
+            await _client.PutAsync($"/api/vendedores/{id}/remover", new StringContent("{}", Encoding.UTF8, "application/json"));
             return RedirectToPage();
         }
     }

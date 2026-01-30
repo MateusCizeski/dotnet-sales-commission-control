@@ -4,6 +4,7 @@ using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Migrations
 {
     [DbContext(typeof(PortalDbContext))]
-    partial class PortalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260130004250_AjustarDecimalPercentualComissao")]
+    partial class AjustarDecimalPercentualComissao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,7 +135,6 @@ namespace Infra.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("PercentualComissao")
-                        .HasPrecision(5, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Telefone")

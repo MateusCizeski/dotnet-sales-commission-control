@@ -1,6 +1,7 @@
 using Application.DTOs.Vendedor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Globalization;
 
 namespace Front.Pages.Vendedores
 {
@@ -18,8 +19,13 @@ namespace Front.Pages.Vendedores
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var percentualStr = Vendedor.PercentualComissao.ToString().Replace(',', '.');
+            Vendedor.PercentualComissao = decimal.Parse(percentualStr, CultureInfo.InvariantCulture);
+
             if (!ModelState.IsValid)
+            {
                 return Page();
+            }
 
             var response = await _client.PostAsJsonAsync("/api/vendedores", Vendedor);
 

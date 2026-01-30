@@ -19,6 +19,11 @@
     </form>
 </div>
 
+@if (TempData["MensagemErro"] != null)
+{
+    <div class="alert alert-danger">@TempData["MensagemErro"]</div>
+}
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -40,24 +45,22 @@
                 <td>@v.PercentualComissao</td>
                 <td>@(v.Ativo ? "Ativo" : "Inativo")</td>
                 <td class="d-flex gap-1">
-                    <a asp-page="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-primary">
-                        Editar
-                    </a>
+                    <a asp-page="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-primary">Editar</a>
 
                     @if (v.Ativo)
                     {
-                        <form method="post" asp-page-handler="Inativar" asp-route-id="@v.Id">
+                        <form method="post" asp-page-handler="Inativar" asp-route-id="@v.Id" onsubmit="return confirm('Tem certeza que deseja inativar?');">
                             <button class="btn btn-sm btn-warning">Inativar</button>
                         </form>
                     }
                     else
                     {
-                        <form method="post" asp-page-handler="Ativar" asp-route-id="@v.Id">
+                        <form method="post" asp-page-handler="Ativar" asp-route-id="@v.Id" onsubmit="return confirm('Tem certeza que deseja ativar?');">
                             <button class="btn btn-sm btn-success">Ativar</button>
                         </form>
                     }
 
-                    <form method="post" asp-page-handler="Remover" asp-route-id="@v.Id">
+                    <form method="post" asp-page-handler="Remover" asp-route-id="@v.Id" onsubmit="return confirm('Tem certeza que deseja remover?');">
                         <button class="btn btn-sm btn-danger">Remover</button>
                     </form>
                 </td>

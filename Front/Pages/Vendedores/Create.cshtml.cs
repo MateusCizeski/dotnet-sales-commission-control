@@ -19,8 +19,13 @@ namespace Front.Pages.Vendedores
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var percentualStr = Vendedor.PercentualComissao.ToString().Replace(',', '.');
-            Vendedor.PercentualComissao = decimal.Parse(percentualStr, CultureInfo.InvariantCulture);
+            if (!decimal.TryParse(Vendedor.PercentualComissao.ToString().Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out var percentual))
+            {
+                ModelState.AddModelError(nameof(Vendedor.PercentualComissao), "Percentual inválido");
+                return Page();
+            }
+
+            Vendedor.PercentualComissao = percentual;
 
             if (!ModelState.IsValid)
             {
@@ -31,7 +36,8 @@ namespace Front.Pages.Vendedores
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Erro ao criar vendedor");
+                var msg = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError("", $"Erro ao criar vendedor: {msg}");
                 return Page();
             }
 

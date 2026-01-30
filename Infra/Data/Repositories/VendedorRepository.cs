@@ -17,22 +17,11 @@ namespace Infra.Data.Repositories
         public async Task AddAsync(Vendedor vendedor)
         {
             await _context.Vendedores.AddAsync(vendedor);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<IReadOnlyList<Vendedor>> GetAllAsync()
         {
-           return await _context.Vendedores.AsNoTracking().ToListAsync();
-        }
-
-        public async Task<Vendedor?> GetByCpfAsync(string cpf)
-        {
-            return await _context.Vendedores.FirstOrDefaultAsync(v => v.Cpf == cpf);
-        }
-
-        public async Task<Vendedor?> GetByEmailAsync(string email)
-        {
-            return await _context.Vendedores.FirstOrDefaultAsync(v => v.Email == email);
+            return await _context.Vendedores.AsNoTracking().ToListAsync();
         }
 
         public async Task<Vendedor?> GetByIdAsync(Guid id)
@@ -40,21 +29,10 @@ namespace Infra.Data.Repositories
             return await _context.Vendedores.FindAsync(id);
         }
 
-        public async Task RemoveAsync(Vendedor vendedor)
+        public Task RemoveAsync(Vendedor vendedor)
         {
             _context.Vendedores.Remove(vendedor);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(Vendedor vendedor)
-        {
-            _context.Vendedores.Update(vendedor);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            _context.SaveChanges();
+            return Task.CompletedTask;
         }
     }
 }

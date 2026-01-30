@@ -1,89 +1,87 @@
-﻿using Application.DTOs.Invoice;
-using Application.DTOs.Vendedor;
+﻿using Application.DTOs.Vendedor;
 using Application.Interfaces;
 using Domain.Entities;
-using Domain.Enums;
 using Domain.Interfaces;
-using Infra.Data.Repositories;
-using System.Text.RegularExpressions;
 
 namespace Application.Applications
 {
     public class VendedorApplication : IVendedorApplication
     {
-        private IVendedorRepository _vendedorRepository;
-        private IComissaoRepository _comissaoRepository;
+        private readonly IVendedorRepository _vendedorRepository;
+        private readonly IComissaoRepository _comissaoRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VendedorApplication(IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository)
+        public VendedorApplication(IVendedorRepository vendedorRepository, IComissaoRepository comissaoRepository, IUnitOfWork unitOfWork)
         {
             _vendedorRepository = vendedorRepository;
             _comissaoRepository = comissaoRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Guid> CriarAsync(CreateVendedorDto dto)
         {
-            var cpfNumeros = Regex.Replace(dto.Cpf, "[^0-9]", "");
-
-            var vendedor = new Vendedor(dto.NomeCompleto, cpfNumeros, dto.Email, dto.PercentualComissao, dto.Telefone);
+            var vendedor = new Vendedor(dto.NomeCompleto, dto.Cpf, dto.Email, dto.PercentualComissao, dto.Telefone);
 
             await _vendedorRepository.AddAsync(vendedor);
+            await _unitOfWork.CommitAsync();
+
             return vendedor.Id;
-        }
-
-        public async Task InativarAsync(Guid id)
-        {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id);
-
-            if (vendedor == null)
-            {
-                throw new Exception("Vendedor não encontrado");
-            }
-
-            var possuiComissao = await _comissaoRepository.ExisteComissaoParaVendedor(id);
-
-            if (possuiComissao)
-            {
-                throw new Exception("Não é permitido inativar um vendedor que possui comissões registradas");
-            }
-
-            vendedor.Inativar();
-            await _vendedorRepository.UpdateAsync(vendedor);
-        }
-
-        public async Task AtivarAsync(Guid id)
-        {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id);
-
-            if (vendedor == null)
-            {
-                throw new Exception("Vendedor não encontrado");
-            }
-
-            vendedor.Ativar();
-            await _vendedorRepository.UpdateAsync(vendedor);
         }
 
         public async Task Atualizar(Guid id, UpdateVendedorDto dto)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id);
+            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
-            vendedor.AtualizarVendedor(vendedor, dto.Nome, dto.PercentualComissao);
+            vendedor.AtualizarDados(dto.Nome, dto.PercentualComissao);
+            await _unitOfWork.CommitAsync();
+        }
 
-            _vendedorRepository.SaveChangesAsync();
+        public async Task InativarAsync(Guid id)
+        {
+            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+
+            if (await _comissaoRepository.ExisteComissaoParaVendedor(id))
+            {
+                throw new ApplicationException("Não é permitido inativar um vendedor com comissões registradas");
+            }
+
+            vendedor.Inativar();
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task AtivarAsync(Guid id)
+        {
+            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+
+            vendedor.Ativar();
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task Remover(Guid id)
+        {
+            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+
+            if (await _comissaoRepository.ExisteComissaoParaVendedor(id))
+            {
+                throw new ApplicationException("Não é permitido excluir vendedor com comissões registradas");
+            }
+
+            await _vendedorRepository.RemoveAsync(vendedor);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<VendedorDto> ObterPorIdAsync(Guid id)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id);
+            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
-            return new VendedorDto()
+            return new VendedorDto
             {
                 Id = vendedor.Id,
-                Ativo = vendedor.Ativo,
-                Documento = vendedor.Cpf,
                 Nome = vendedor.NomeCompleto,
+                Documento = vendedor.Cpf,
                 Email = vendedor.Email,
-                PercentualComissao = vendedor.PercentualComissao
+                PercentualComissao = vendedor.PercentualComissao,
+                Ativo = vendedor.Ativo
             };
         }
 
@@ -94,30 +92,11 @@ namespace Application.Applications
             return vendedores.Select(v => new VendedorDto
             {
                 Id = v.Id,
-                Ativo = v.Ativo,
-                Documento = v.Cpf,
                 Nome = v.NomeCompleto,
-                PercentualComissao = v.PercentualComissao
+                Documento = v.Cpf,
+                PercentualComissao = v.PercentualComissao,
+                Ativo = v.Ativo
             }).ToList();
-        }
-
-        public async Task Remover(Guid id)
-        {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id);
-
-            if (vendedor == null)
-            {
-                throw new Exception("Vendedor não encontrado");
-            }
-
-            var possuiComissao = await _comissaoRepository.ExisteComissaoParaVendedor(id);
-
-            if (possuiComissao)
-            {
-                throw new Exception("Não é permitido excluir um vendedor que possui comissões registradas");
-            }
-
-            await _vendedorRepository.RemoveAsync(vendedor);
         }
     }
 }

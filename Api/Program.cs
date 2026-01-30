@@ -1,4 +1,5 @@
 using Api.Extension;
+using Api.Middlewares;
 using Application.DependencyInjection;
 using Infra.Data.Context;
 using Infra.DependencyInjection;
@@ -24,6 +25,7 @@ if (app.Environment.IsDevelopment())
     app.UseApiDoc();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

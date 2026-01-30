@@ -11,5 +11,6 @@ namespace Application.Interfaces
         Task UpdateAsync(Guid id, UpdateInvoiceDto dto);
         Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId);
         Task<InvoiceEditDto> ObterPorIdAsync(Guid id);
+        Task<IReadOnlyList<InvoiceListDto>> ObterTodosDtoAsync(Guid? vendedorId);
     }
 }

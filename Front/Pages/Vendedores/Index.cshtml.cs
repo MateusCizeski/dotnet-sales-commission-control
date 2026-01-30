@@ -31,19 +31,40 @@ namespace Front.Pages.Vendedores
 
         public async Task<IActionResult> OnPostInativarAsync(Guid id)
         {
-            await _client.PutAsync($"/api/vendedores/{id}/inativar", new StringContent("{}", Encoding.UTF8, "application/json"));
+            var response = await _client.PutAsync($"/api/vendedores/{id}/inativar", new StringContent("{}", Encoding.UTF8, "application/json"));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var msg = await response.Content.ReadAsStringAsync();
+                TempData["MensagemErro"] = $"Erro ao inativar: {msg}";
+            }
+
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostAtivarAsync(Guid id)
         {
-            await _client.PutAsync($"/api/vendedores/{id}/ativar", new StringContent("{}", Encoding.UTF8, "application/json"));
+            var response = await _client.PutAsync($"/api/vendedores/{id}/ativar", new StringContent("{}", Encoding.UTF8, "application/json"));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var msg = await response.Content.ReadAsStringAsync();
+                TempData["MensagemErro"] = $"Erro ao ativar: {msg}";
+            }
+
             return RedirectToPage();
         }
 
         public async Task<IActionResult> OnPostRemoverAsync(Guid id)
         {
-            await _client.PutAsync($"/api/vendedores/{id}/remover", new StringContent("{}", Encoding.UTF8, "application/json"));
+            var response = await _client.PutAsync($"/api/vendedores/{id}/remover", new StringContent("{}", Encoding.UTF8, "application/json"));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var msg = await response.Content.ReadAsStringAsync();
+                TempData["MensagemErro"] = $"Erro ao remover: {msg}";
+            }
+
             return RedirectToPage();
         }
     }

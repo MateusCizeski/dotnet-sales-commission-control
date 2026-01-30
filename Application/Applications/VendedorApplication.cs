@@ -1,7 +1,10 @@
-﻿using Application.DTOs.Vendedor;
+﻿using Application.DTOs.Invoice;
+using Application.DTOs.Vendedor;
 using Application.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
+using Infra.Data.Repositories;
 using System.Text.RegularExpressions;
 
 namespace Application.Applications
@@ -45,6 +48,28 @@ namespace Application.Applications
 
             vendedor.Inativar();
             await _vendedorRepository.UpdateAsync(vendedor);
+        }
+
+        public async Task AtivarAsync(Guid id)
+        {
+            var vendedor = await _vendedorRepository.GetByIdAsync(id);
+
+            if (vendedor == null)
+            {
+                throw new Exception("Vendedor não encontrado");
+            }
+
+            vendedor.Ativar();
+            await _vendedorRepository.UpdateAsync(vendedor);
+        }
+
+        public async Task Atualizar(Guid id, UpdateVendedorDto dto)
+        {
+            var vendedor = await _vendedorRepository.GetByIdAsync(id);
+
+            vendedor.AtualizarVendedor(vendedor, dto.Nome, dto.PercentualComissao);
+
+            _vendedorRepository.SaveChangesAsync();
         }
 
         public async Task<VendedorDto> ObterPorIdAsync(Guid id)

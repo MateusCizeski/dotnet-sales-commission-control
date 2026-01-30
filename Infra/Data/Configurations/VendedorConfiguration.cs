@@ -28,6 +28,7 @@ namespace Infra.Data.Configurations
                 .HasMaxLength(20);
 
             builder.Property(v => v.PercentualComissao)
+                .HasColumnType("decimal(18,2)")
                 .IsRequired();
 
             builder.Property(v => v.Ativo)

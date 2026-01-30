@@ -51,5 +51,10 @@ namespace Infra.Data.Repositories
             _context.Vendedores.Update(vendedor);
             await _context.SaveChangesAsync();
         }
+
+        public async Task SaveChangesAsync()
+        {
+            _context.SaveChanges();
+        }
     }
 }

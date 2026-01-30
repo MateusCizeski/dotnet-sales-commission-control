@@ -50,6 +50,12 @@
                             <button class="btn btn-sm btn-warning">Inativar</button>
                         </form>
                     }
+                    else
+                    {
+                        <form method="post" asp-page-handler="Ativar" asp-route-id="@v.Id">
+                            <button class="btn btn-sm btn-success">Ativar</button>
+                        </form>
+                    }
 
                     <form method="post" asp-page-handler="Remover" asp-route-id="@v.Id">
                         <button class="btn btn-sm btn-danger">Remover</button>

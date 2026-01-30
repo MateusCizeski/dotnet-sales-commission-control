@@ -4,29 +4,36 @@
 <h1>Novo Vendedor</h1>
 
 <form method="post" class="col-md-6">
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
     <div class="mb-3">
         <label>Nome Completo</label>
         <input asp-for="Vendedor.NomeCompleto" class="form-control" />
+        <span asp-validation-for="Vendedor.NomeCompleto" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label>CPF</label>
         <input asp-for="Vendedor.Cpf" class="form-control" />
+        <span asp-validation-for="Vendedor.Cpf" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label>Email</label>
         <input asp-for="Vendedor.Email" class="form-control" />
+        <span asp-validation-for="Vendedor.Email" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label>% Comissão</label>
-        <input asp-for="Vendedor.PercentualComissao" class="form-control" />
+        <input asp-for="Vendedor.PercentualComissao" type="text" class="form-control" placeholder="Ex: 7,00" />
+        <span asp-validation-for="Vendedor.PercentualComissao" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
         <label>Telefone</label>
         <input asp-for="Vendedor.Telefone" class="form-control" />
+        <span asp-validation-for="Vendedor.Telefone" class="text-danger"></span>
     </div>
 
     <button class="btn btn-success">Salvar</button>

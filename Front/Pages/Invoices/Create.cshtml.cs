@@ -3,6 +3,7 @@ using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.Json.Serialization;
 
 namespace Front.Pages.Invoices
 {
@@ -40,10 +41,22 @@ namespace Front.Pages.Invoices
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
+            {
                 return Page();
+            }
 
-            var response =
-                await _client.PostAsJsonAsync("/api/invoices", Invoice);
+            var dto = new Application.DTOs.Invoice.CreateInvoiceDto
+            {
+                VendedorId = Invoice.VendedorId,
+                Cliente = Invoice.Cliente,
+                CnpjCpfCliente = Invoice.CnpjCpfCliente,
+                ValorTotal = Invoice.ValorTotal,
+                DataEmissao = Invoice.DataEmissao,
+                Observacoes = Invoice.Observacoes,
+                Status = (Domain.Enums.StatusInvoice)Invoice.Status
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/invoices", dto);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -54,10 +67,27 @@ namespace Front.Pages.Invoices
             return RedirectToPage("Index");
         }
 
+        public class CreateInvoiceViewModel
+        {
+            public Guid VendedorId { get; set; }
+            public decimal ValorTotal { get; set; }
+            public DateTime DataEmissao { get; set; }
+            public string Cliente { get; set; } = string.Empty;
+            public string CnpjCpfCliente { get; set; } = string.Empty;
+            public StatusInvoice Status { get; set; }
+            public string? Observacoes { get; set; }
+        }
+
         public class VendedorDropdownDto
         {
+            [JsonPropertyName("id")]
             public Guid Id { get; set; }
-            public string NomeCompleto { get; set; } = "";
+
+            [JsonPropertyName("nome")]
+            public string NomeCompleto { get; set; } = string.Empty;
+
+            [JsonPropertyName("documento")]
+            public string Cpf { get; set; } = string.Empty;
         }
     }
 }

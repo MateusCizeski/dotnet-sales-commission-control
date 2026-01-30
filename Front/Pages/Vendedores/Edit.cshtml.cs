@@ -23,11 +23,12 @@ namespace Front.Pages.Vendedores
 
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
-            var vendedor = await _client
-                .GetFromJsonAsync<VendedorDto>($"/api/vendedores/{id}");
+            var vendedor = await _client.GetFromJsonAsync<VendedorDto>($"/api/vendedores/{id}");
 
             if (vendedor == null)
+            {
                 return NotFound();
+            }
 
             Id = vendedor.Id;
             Cpf = vendedor.Documento;
@@ -45,12 +46,11 @@ namespace Front.Pages.Vendedores
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
+            {
                 return Page();
+            }
 
-            var response = await _client.PutAsJsonAsync(
-                $"/api/vendedores/{Id}",
-                Vendedor
-            );
+            var response = await _client.PutAsJsonAsync($"/api/vendedores/{Id}", Vendedor);
 
             if (!response.IsSuccessStatusCode)
             {

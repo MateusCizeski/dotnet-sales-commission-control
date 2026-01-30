@@ -11,5 +11,6 @@ namespace Domain.Interfaces
         Task AddAsync(Vendedor vendedor);
         Task UpdateAsync(Vendedor vendedor);
         Task RemoveAsync(Vendedor vendedor);
+        Task SaveChangesAsync();
     }
 }

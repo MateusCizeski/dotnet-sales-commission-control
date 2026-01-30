@@ -1,5 +1,5 @@
-﻿using Application.Interfaces;
-using Domain.Entities;
+﻿using Application.DTOs.Comissao;
+using Application.Interfaces;
 using Domain.Interfaces;
 
 namespace Application.Applications
@@ -29,9 +29,22 @@ namespace Application.Applications
             await _comissaoRepository.UpdateAsync(comissao);
         }
 
-        public Task<IReadOnlyList<Comissao>> GetAllAsync()
+        public async Task<IReadOnlyList<ComissaoListDto>> GetAllAsync()
         {
-            return _comissaoRepository.GetAllAsync();
+            var comissoes = await _comissaoRepository.GetAllAsync();
+
+            return comissoes.Select(c => new ComissaoListDto
+            {
+                Id = c.Id,
+                NumeroInvoice = c.Invoice.NumeroInvoice,
+                VendedorNome = c.Invoice.Vendedor.NomeCompleto,
+                ValorBase = c.ValorBase,
+                PercentualAplicado = c.PercentualAplicado,
+                ValorComissao = c.ValorComissao,
+                Status = c.Status,
+                DataCalculo = c.DataCalculo,
+                DataPagamento = c.DataPagamento
+            }).ToList();
         }
     }
 }

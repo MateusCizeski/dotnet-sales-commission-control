@@ -34,16 +34,15 @@ else
 
         <div class="mb-3">
             <label class="form-label">Percentual de Comissão (%)</label>
-            <input asp-for="Vendedor.PercentualComissao"
-                   class="form-control"
-                   step="0.01" />
+            <input asp-for="Vendedor.PercentualComissao" type="number" step="0.01" class="form-control" placeholder="Ex: 7,00" />
+            <span asp-validation-for="Vendedor.PercentualComissao" class="text-danger"></span>
         </div>
 
         <button class="btn btn-primary">Salvar</button>
         <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
     </form>
+}
 
-    <div class="alert alert-warning mt-3">
-        ⚠️ Endpoint de edição ainda não implementado na API.
-    </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

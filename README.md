@@ -54,6 +54,7 @@ Arquivo `Api/appsettings.json`:
     "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=ComissoesDb;Trusted_Connection=True;TrustServerCertificate=True;"
   }
 }
+```json
 
 ## 2️⃣ Rodar a API
 Na pasta raiz do projeto:

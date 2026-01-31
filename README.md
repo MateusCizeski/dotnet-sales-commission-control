@@ -42,7 +42,6 @@ Principais características:
 - Docker Compose
 
 ---
-
 ## ▶️ Executando o projeto localmente
 
 ### 1️⃣ Configurar connection string local
@@ -56,46 +55,41 @@ Arquivo `Api/appsettings.json`:
   }
 }
 
-### 2️⃣ Rodar a API
-
+## 2️⃣ Rodar a API
 Na pasta raiz do projeto:
+- dotnet run --project Api/Api.csproj
+- API disponível em: http://localhost:5001
+- Swagger disponível em: http://localhost:5001/swagger
 
-```bash
-dotnet run --project Api/Api.csproj
-API disponível em:
-👉 http://localhost:5001
-Swagger disponível em:
-👉 http://localhost:5001/swagger
-
-3️⃣ Rodar o Front-end
+---
+## 3️⃣ Rodar o Front-end
 Em outro terminal:
-dotnet run --project Front/Front.csproj
-Front disponível em:
-👉 http://localhost:7000
+- dotnet run --project Front/Front.csproj
+- Front disponível em: http://localhost:7000
 
-ℹ️ Observação
-As migrations são aplicadas automaticamente ao iniciar a API, garantindo que o banco de dados seja criado e atualizado sem necessidade de passos manuais.
+---
+## ℹ️ Observação
+- As migrations são aplicadas automaticamente ao iniciar a API, garantindo que o banco de dados seja criado e atualizado sem necessidade de passos manuais.
 
+---
 🧪 Executando os testes unitários
 O projeto possui uma camada de testes localizada em:
-/Tests
-
+- /Tests
 Para executar os testes:
-cd Tests
-dotnet test
+- cd Tests
+- dotnet test
 
-
-🐳 Executando o projeto com Docker
-1️⃣ Subir todos os serviços
+---
+## 🐳 Executando o projeto com Docker
+## 1️⃣ Subir todos os serviços
 Na pasta raiz do projeto:
-docker compose up --build
-
+- docker compose up --build
 Isso irá subir:
-SQL Server
-API
-Front-end
+- SQL Server
+- API
+- Front-end
 
-2️⃣ URLs disponíveis
-Front-end	http://localhost:7000
-API	http://localhost:5001
-Swagger	http://localhost:5001/swagger
+## 2️⃣ URLs disponíveis
+- Front-end	http://localhost:7000
+- API	http://localhost:5001
+- Swagger	http://localhost:5001/swagger

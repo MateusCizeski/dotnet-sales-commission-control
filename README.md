@@ -85,6 +85,7 @@ Para executar os testes:
 ## 1️⃣ Subir todos os serviços
 Na pasta raiz do projeto:
 - docker compose up --build
+  
 Isso irá subir:
 - SQL Server
 - API

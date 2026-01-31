@@ -14,12 +14,14 @@ O objetivo do projeto é permitir operações **CRUD** relacionadas ao controle 
 
 Estrutura do projeto:
 
-- `/Api` → Camada de API (ASP.NET Core)
-- `/Front` → Front-end (Razor Pages)
-- `/Infra` → Infraestrutura (EF Core, DbContext, Migrations)
-- `/Application` → Regras de negócio
+- `/Api` → Camada de apresentação da API (ASP.NET Core Web API)
+- `/Front` → Front-end da aplicação (Razor Pages)
+- `/Application` → Camada de aplicação (casos de uso, DTOs, interfaces)
+- `/Domain` → Domínio da aplicação (entidades, enums, regras de domínio)
+- `/Infra` → Infraestrutura (Entity Framework Core, DbContext, repositórios, migrations)
 - `/Tests` → Testes unitários
-- `/docker-compose.yml` → Orquestração Docker
+- `/docker-compose.yml` → Orquestração dos containers (API, Front-end e SQL Server)
+- `Portal.slnx` → Solution do projeto
 
 Principais características:
 - Comunicação entre Front e API via HTTP  

@@ -24,6 +24,8 @@ namespace Domain.Entities
 
         public Invoice(Vendedor vendedor, string numero, DateTime dataEmissao, string cliente, string cnpjCpfCliente, decimal valorTotal, string? observacoes = null)
         {
+            var cnpjCpfNormalizado = NormalizarDocumento(cnpjCpfCliente);
+
             ValidarVendedor(vendedor);
             ValidarCliente(cliente);
             ValidarCnpjCpfCliente(cnpjCpfCliente);
@@ -34,25 +36,17 @@ namespace Domain.Entities
             Id = Guid.NewGuid();
             NumeroInvoice = string.IsNullOrWhiteSpace(numero) ? GerarNumero() : numero;
             DataEmissao = dataEmissao;
-            Vendedor = vendedor;
             VendedorId = vendedor.Id;
             Cliente = cliente;
-            CnpjCpfCliente = cnpjCpfCliente;
+            CnpjCpfCliente = cnpjCpfNormalizado;
             ValorTotal = valorTotal;
             Observacoes = observacoes;
             Status = StatusInvoice.Pendente;
-
-            CriarComissao();
         }
 
         private string GerarNumero()
         {
             return $"INV-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString()[..6]}";
-        }
-
-        private void CriarComissao()
-        {
-            Comissao = new Comissao(Id, ValorTotal, Vendedor.PercentualComissao);
         }
 
         public void Aprovar() => Status = StatusInvoice.Aprovada;
@@ -64,9 +58,7 @@ namespace Domain.Entities
             GarantirPodeAlterar();
             ValidarVendedor(novoVendedor);
 
-            Vendedor = novoVendedor;
             VendedorId = novoVendedor.Id;
-            Comissao = new Comissao(Id, ValorTotal, novoVendedor.PercentualComissao);
         }
 
         public void AlterarValorTotal(decimal valorTotal)
@@ -75,7 +67,6 @@ namespace Domain.Entities
             ValidarValorTotal(valorTotal);
 
             ValorTotal = valorTotal;
-            Comissao = new Comissao(Id, ValorTotal, Vendedor.PercentualComissao);
         }
 
         private void GarantirPodeAlterar()
@@ -147,6 +138,11 @@ namespace Domain.Entities
             {
                 throw new DomainException("Observações devem ter no máximo 500 caracteres.");
             }
+        }
+
+        private static string NormalizarDocumento(string valor)
+        {
+            return new string(valor.Where(char.IsDigit).ToArray());
         }
     }
 }

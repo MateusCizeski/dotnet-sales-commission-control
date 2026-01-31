@@ -60,7 +60,10 @@ namespace Front.Pages.Invoices
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Erro ao criar invoice");
+                var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+
+                ModelState.AddModelError(string.Empty, errorResponse?.Error ?? "Erro ao criar invoice");
+
                 return Page();
             }
 
@@ -88,6 +91,11 @@ namespace Front.Pages.Invoices
 
             [JsonPropertyName("documento")]
             public string Cpf { get; set; } = string.Empty;
+        }
+
+        public class ErrorResponse
+        {
+            public string Error { get; set; } = string.Empty;
         }
     }
 }

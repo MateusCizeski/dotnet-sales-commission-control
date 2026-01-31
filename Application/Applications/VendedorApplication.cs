@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Vendedor;
+using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -22,6 +23,16 @@ namespace Application.Applications
         {
             var vendedor = new Vendedor(dto.NomeCompleto, dto.Cpf, dto.Email, dto.PercentualComissao, dto.Telefone);
 
+            if(await _vendedorRepository.VerificarCpfExistente(dto.Cpf))
+            {
+                throw new BusinessRuleException("Existe um vendedor com o mesmo CPF.");
+            }
+
+            if (await _vendedorRepository.VerificarEmailExistente(dto.Email))
+            {
+                throw new BusinessRuleException("Existe um vendedor com o mesmo Email.");
+            }
+
             await _vendedorRepository.AddAsync(vendedor);
             await _unitOfWork.CommitAsync();
 
@@ -42,7 +53,7 @@ namespace Application.Applications
 
             if (await _comissaoRepository.ExisteComissaoParaVendedor(id))
             {
-                throw new ApplicationException("Não é permitido inativar um vendedor com comissões registradas");
+                throw new BusinessRuleException("Não é permitido inativar um vendedor com comissões registradas");
             }
 
             vendedor.Inativar();
@@ -63,7 +74,7 @@ namespace Application.Applications
 
             if (await _comissaoRepository.ExisteComissaoParaVendedor(id))
             {
-                throw new ApplicationException("Não é permitido excluir vendedor com comissões registradas");
+                throw new BusinessRuleException("Não é permitido excluir vendedor com comissões registradas");
             }
 
             await _vendedorRepository.RemoveAsync(vendedor);
@@ -92,6 +103,7 @@ namespace Application.Applications
             return vendedores.Select(v => new VendedorDto
             {
                 Id = v.Id,
+                Email = v.Email,
                 Nome = v.NomeCompleto,
                 Documento = v.Cpf,
                 PercentualComissao = v.PercentualComissao,

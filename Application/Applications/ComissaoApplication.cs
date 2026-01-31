@@ -7,10 +7,12 @@ namespace Application.Applications
     public class ComissaoApplication : IComissaoApplication
     {
         private readonly IComissaoRepository _comissaoRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ComissaoApplication(IComissaoRepository comissaoRepository)
+        public ComissaoApplication(IComissaoRepository comissaoRepository, IUnitOfWork unitOfWork)
         {
             _comissaoRepository = comissaoRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task MarcarComoPagaAsync(Guid id)
@@ -18,7 +20,7 @@ namespace Application.Applications
             var comissao = await _comissaoRepository.GetByIdAsync(id);
 
             comissao.Pagar();
-            await _comissaoRepository.UpdateAsync(comissao);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task MarcarComoCanceladaAsync(Guid id)
@@ -26,7 +28,7 @@ namespace Application.Applications
             var comissao = await _comissaoRepository.GetByIdAsync(id);
 
             comissao.Cancelar();
-            await _comissaoRepository.UpdateAsync(comissao);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<IReadOnlyList<ComissaoListDto>> GetAllAsync()

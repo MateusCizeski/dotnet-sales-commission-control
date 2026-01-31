@@ -18,16 +18,8 @@ namespace Api.Controllers
         [HttpGet("invoices/summary")]
         public async Task<ActionResult<InvoiceSummaryDto>> ResumoInvoices([FromQuery] ObterResumoDto dto)
         {
-            try
-            {
-                var resumo = await _dashboardApplication.ObterResumoInvoicesAsync(dto);
-
-                return Ok(resumo);
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            var resumo = await _dashboardApplication.ObterResumoInvoicesAsync(dto);
+            return Ok(resumo);
         }
     }
 }

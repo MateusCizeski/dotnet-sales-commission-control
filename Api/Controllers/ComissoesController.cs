@@ -16,45 +16,23 @@ namespace Api.Controllers
 
         [HttpPut("{id}/pagar")]
         public async Task<IActionResult> MarcarComoPaga([FromRoute] Guid id)
-        {
-            try
-            {
-                await _comissaoApplication.MarcarComoPagaAsync(id);
-                return NoContent();
-            }
-            catch(Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+        { 
+            await _comissaoApplication.MarcarComoPagaAsync(id);
+            return NoContent();
         }
 
         [HttpPut("{id}/cancelar")]
         public async Task<IActionResult> MarcarComoCancelada([FromRoute] Guid id)
         {
-            try
-            {
-                await _comissaoApplication.MarcarComoCanceladaAsync(id);
-                return NoContent();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            await _comissaoApplication.MarcarComoCanceladaAsync(id);
+            return NoContent();
         }
 
         [HttpGet]
         public async Task<IActionResult> ObterTodos()
         {
-            try
-            {
-                var comissoes = await _comissaoApplication.GetAllAsync();
-
-                return Ok(comissoes);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
+            var comissoes = await _comissaoApplication.GetAllAsync();
+            return Ok(comissoes);
         }
     }
 }

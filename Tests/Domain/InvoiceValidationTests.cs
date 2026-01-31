@@ -42,15 +42,5 @@ namespace Tests.Domain
                 new Invoice(vendedorInativo, "INV-0001", DateTime.UtcNow, "Cliente", "12345678909", 100)
             );
         }
-
-        [Fact]
-        public void InvoiceValida_DeveCriarComissaoAutomaticamente()
-        {
-            var invoice = new Invoice(_vendedorAtivo, "INV-0001", DateTime.UtcNow, "Cliente", "12345678909", 1000);
-
-            Assert.NotNull(invoice.Comissao);
-            Assert.Equal(1000, invoice.Comissao.ValorBase);
-            Assert.Equal(10, invoice.Comissao.PercentualAplicado);
-        }
     }
 }

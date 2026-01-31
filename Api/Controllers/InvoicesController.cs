@@ -16,44 +16,45 @@ namespace Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] CreateInvoiceDto dto)
+        public async Task<IActionResult> Criar([FromBody] CriarInvoiceDto dto)
         {
-            var id = await _invoiceApplication.CriarAsync(dto);
-            return CreatedAtAction(nameof(ObterPorId), new { id }, new { id });
+            var id = await _invoiceApplication.Criar(dto);
+            return CreatedAtAction(nameof(ListarPorId), new { id }, new { id });
         }
 
         [HttpPut("{id}/aprovar")]
         public async Task<IActionResult> Aprovar([FromRoute] Guid id)
         {
-            await _invoiceApplication.AprovarAsync(id);
+            await _invoiceApplication.Aprovar(id);
             return NoContent();
         }
 
         [HttpPut("{id}/cancelar")]
         public async Task<IActionResult> Cancelar([FromRoute] Guid id)
         {
-            await _invoiceApplication.CancelarAsync(id);
+            await _invoiceApplication.Cancelar(id);
             return NoContent();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateInvoiceDto dto)
+        public async Task<IActionResult> Editar([FromRoute] Guid id, [FromBody] EditarInvoiceDtoEnxuto dto)
         {
-            await _invoiceApplication.UpdateAsync(id, dto);
+            await _invoiceApplication.Editar(id, dto);
             return NoContent();
         }
 
         [HttpGet]
-        public async Task<IActionResult> ObterTodos([FromQuery] Guid? vendedorId)
+        public async Task<IActionResult> ListarPaginado([FromQuery] Guid? vendedorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var invoices = await _invoiceApplication.ObterTodosDtoAsync(vendedorId);
-            return Ok(invoices);
+
+            var result = await _invoiceApplication.ListarPaginado(vendedorId, page, pageSize);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> ObterPorId([FromRoute] Guid id)
+        public async Task<IActionResult> ListarPorId([FromRoute] Guid id)
         {
-            var invoice = await _invoiceApplication.ObterPorIdAsync(id);
+            var invoice = await _invoiceApplication.ListarPorId(id);
             return Ok(invoice);
         }
     }

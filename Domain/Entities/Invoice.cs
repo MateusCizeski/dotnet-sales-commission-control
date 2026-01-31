@@ -1,7 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Validation;
-using System.Drawing;
 
 namespace Domain.Entities
 {
@@ -59,6 +58,7 @@ namespace Domain.Entities
             ValidarVendedor(novoVendedor);
 
             VendedorId = novoVendedor.Id;
+            Vendedor = novoVendedor;
         }
 
         public void AlterarValorTotal(decimal valorTotal)

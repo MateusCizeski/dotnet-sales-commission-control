@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Vendedor;
+﻿using Application.DTOs.Shared;
+using Application.DTOs.Vendedor;
 using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;
@@ -19,7 +20,7 @@ namespace Application.Applications
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> CriarAsync(CreateVendedorDto dto)
+        public async Task<Guid> Criar(CriarVendedorDto dto)
         {
             var vendedor = new Vendedor(dto.NomeCompleto, dto.Cpf, dto.Email, dto.PercentualComissao, dto.Telefone);
 
@@ -33,23 +34,23 @@ namespace Application.Applications
                 throw new BusinessRuleException("Existe um vendedor com o mesmo Email.");
             }
 
-            await _vendedorRepository.AddAsync(vendedor);
+            await _vendedorRepository.Criar(vendedor);
             await _unitOfWork.CommitAsync();
 
             return vendedor.Id;
         }
 
-        public async Task Atualizar(Guid id, UpdateVendedorDto dto)
+        public async Task Editar(Guid id, EditarVendedorDto dto)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+            var vendedor = await _vendedorRepository.ListarPorId(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
             vendedor.AtualizarDados(dto.Nome, dto.PercentualComissao);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task InativarAsync(Guid id)
+        public async Task Inativar(Guid id)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+            var vendedor = await _vendedorRepository.ListarPorId(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
             if (await _comissaoRepository.ExisteComissaoParaVendedor(id))
             {
@@ -60,9 +61,9 @@ namespace Application.Applications
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task AtivarAsync(Guid id)
+        public async Task Ativar(Guid id)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+            var vendedor = await _vendedorRepository.ListarPorId(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
             vendedor.Ativar();
             await _unitOfWork.CommitAsync();
@@ -70,20 +71,20 @@ namespace Application.Applications
 
         public async Task Remover(Guid id)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+            var vendedor = await _vendedorRepository.ListarPorId(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
             if (await _comissaoRepository.ExisteComissaoParaVendedor(id))
             {
                 throw new BusinessRuleException("Não é permitido excluir vendedor com comissões registradas");
             }
 
-            await _vendedorRepository.RemoveAsync(vendedor);
+            await _vendedorRepository.Remover(vendedor);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<VendedorDto> ObterPorIdAsync(Guid id)
+        public async Task<VendedorDto> ListarPorId(Guid id)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(id) ?? throw new ApplicationException("Vendedor não encontrado");
+            var vendedor = await _vendedorRepository.ListarPorId(id) ?? throw new ApplicationException("Vendedor não encontrado");
 
             return new VendedorDto
             {
@@ -96,9 +97,9 @@ namespace Application.Applications
             };
         }
 
-        public async Task<IReadOnlyList<VendedorDto>> ObterTodosAsync()
+        public async Task<IReadOnlyList<VendedorDto>> Listar()
         {
-            var vendedores = await _vendedorRepository.GetAllAsync();
+            var vendedores = await _vendedorRepository.Listar();
 
             return vendedores.Select(v => new VendedorDto
             {
@@ -109,6 +110,27 @@ namespace Application.Applications
                 PercentualComissao = v.PercentualComissao,
                 Ativo = v.Ativo
             }).ToList();
+        }
+
+        public async Task<PagedResult<VendedorDto>> ListarPaginado(int page, int pageSize)
+        {
+            var (items, total) = await _vendedorRepository.ListarPaginado(page, pageSize);
+
+            return new PagedResult<VendedorDto>
+            {
+                Items = items.Select(v => new VendedorDto
+                {
+                    Id = v.Id,
+                    Email = v.Email,
+                    Nome = v.NomeCompleto,
+                    Documento = v.Cpf,
+                    PercentualComissao = v.PercentualComissao,
+                    Ativo = v.Ativo
+                }).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = total
+            };
         }
     }
 }

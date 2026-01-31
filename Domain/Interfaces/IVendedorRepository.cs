@@ -4,11 +4,12 @@ namespace Domain.Interfaces
 {
     public interface IVendedorRepository
     {
-        Task AddAsync(Vendedor vendedor);
-        Task<IReadOnlyList<Vendedor>> GetAllAsync();
-        Task<Vendedor?> GetByIdAsync(Guid id);
-        Task RemoveAsync(Vendedor vendedor);
+        Task Criar(Vendedor vendedor);
+        Task<IReadOnlyList<Vendedor>> Listar();
+        Task<Vendedor?> ListarPorId(Guid id);
+        Task Remover(Vendedor vendedor);
         Task<bool> VerificarCpfExistente(string cpf);
         Task<bool> VerificarEmailExistente(string email);
+        Task<(IReadOnlyList<Vendedor>, int)> ListarPaginado(int page, int pageSize);
     }
 }

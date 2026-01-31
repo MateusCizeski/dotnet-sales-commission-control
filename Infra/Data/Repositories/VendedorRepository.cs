@@ -14,22 +14,22 @@ namespace Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Vendedor vendedor)
+        public async Task Criar(Vendedor vendedor)
         {
             await _context.Vendedores.AddAsync(vendedor);
         }
 
-        public async Task<IReadOnlyList<Vendedor>> GetAllAsync()
+        public async Task<IReadOnlyList<Vendedor>> Listar()
         {
             return await _context.Vendedores.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Vendedor?> GetByIdAsync(Guid id)
+        public async Task<Vendedor?> ListarPorId(Guid id)
         {
             return await _context.Vendedores.FirstOrDefaultAsync(v => v.Id == id);
         }
 
-        public Task RemoveAsync(Vendedor vendedor)
+        public Task Remover(Vendedor vendedor)
         {
             _context.Vendedores.Remove(vendedor);
             return Task.CompletedTask;
@@ -39,9 +39,24 @@ namespace Infra.Data.Repositories
         {
             return await _context.Vendedores.AnyAsync(v => v.Cpf == cpf);
         }
+
         public async Task<bool> VerificarEmailExistente(string email)
         {
             return await _context.Vendedores.AnyAsync(v => v.Email == email);
+        }
+
+        public async Task<(IReadOnlyList<Vendedor>, int)> ListarPaginado(int page, int pageSize)
+        {
+            var query = _context.Vendedores.AsQueryable();
+            var total = await query.CountAsync();
+            
+            var items = await query
+                 .OrderByDescending(i => i.DataCadastro)
+                 .Skip((page - 1) * pageSize)
+                 .Take(pageSize)
+                 .ToListAsync();
+
+            return (items, total);
         }
     }
 }

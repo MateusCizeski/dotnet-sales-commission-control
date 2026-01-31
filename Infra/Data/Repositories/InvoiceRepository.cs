@@ -14,23 +14,23 @@ namespace Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Invoice invoice)
+        public async Task Criar(Invoice invoice)
         {
             await _context.Invoices.AddAsync(invoice);
         }
 
-        public Task UpdateAsync(Invoice invoice)
+        public Task Editar(Invoice invoice)
         {
             _context.Invoices.Update(invoice);
             return Task.CompletedTask;
         }
 
-        public async Task<Invoice?> GetByIdAsync(Guid id)
+        public async Task<Invoice?> ListarPorId(Guid id)
         {
-            return await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
+            return await _context.Invoices.Include(i => i.Vendedor).FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public async Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId = null)
+        public async Task<IReadOnlyList<Invoice>> Listar(Guid? vendedorId = null)
         {
             var query = _context.Invoices.Include(i => i.Vendedor).AsQueryable();
 
@@ -47,24 +47,24 @@ namespace Infra.Data.Repositories
             return _context.Invoices.Include(i => i.Vendedor);
         }
 
-        public async Task<IReadOnlyList<Invoice>> GetByPeriodoAsync(DateTime inicio, DateTime fim)
+        public async Task<IReadOnlyList<Invoice>> ListarPorPeriodo(DateTime inicio, DateTime fim)
         {
             return await _context.Invoices.Where(i => i.DataEmissao >= inicio && i.DataEmissao <= fim).ToListAsync();
         }
 
-        public async Task<IReadOnlyList<Invoice>> GetByVendedorIdAsync(Guid vendedorId)
+        public async Task<IReadOnlyList<Invoice>> ListarPorVendedor(Guid vendedorId)
         {
             return await _context.Invoices.Where(i => i.VendedorId == vendedorId).ToListAsync();
         }
 
-        public async Task<string?> GetUltimoNumeroAsync()
+        public async Task<string?> BuscarUltimoNumeroInvoice()
         {
             var ultimoInvoice = await _context.Invoices.OrderByDescending(i => i.DataEmissao).FirstOrDefaultAsync();
 
             return ultimoInvoice?.NumeroInvoice;
         }
 
-        public async Task<string> GetProximoNumeroAsync()
+        public async Task<string> BuscarProximoNumeroInvoice()
         {
             var connection = _context.Database.GetDbConnection();
 
@@ -80,6 +80,26 @@ namespace Infra.Data.Repositories
             var numero = Convert.ToInt64(result);
 
             return $"INV-{numero:D4}";
+        }
+
+        public async Task<(IReadOnlyList<Invoice>, int)> ListarPaginado(Guid? vendedorId, int page, int pageSize)
+        {
+            var query = _context.Invoices.Include(i => i.Vendedor).AsQueryable();
+
+            if (vendedorId.HasValue)
+            {
+                query = query.Where(i => i.VendedorId == vendedorId.Value);
+            }
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(i => i.DataEmissao)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, total);
         }
     }
 }

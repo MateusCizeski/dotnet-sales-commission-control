@@ -16,13 +16,13 @@ namespace Front.Pages.Invoices
         }
 
         [BindProperty]
-        public UpdateInvoiceDto Invoice { get; set; } = new();
+        public EditarInvoiceDtoEnxuto Invoice { get; set; } = new();
 
         public List<SelectListItem> Vendedores { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
-            var invoice = await _client.GetFromJsonAsync<InvoiceEditDto>($"/api/invoices/{id}");
+            var invoice = await _client.GetFromJsonAsync<EditarInvoiceDto>($"/api/invoices/{id}");
 
             if (invoice == null)
             {
@@ -59,7 +59,7 @@ namespace Front.Pages.Invoices
 
         private async Task CarregarVendedoresAsync()
         {
-            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores");
+            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores/listar");
 
             Vendedores = vendedores?
                 .Select(v => new SelectListItem

@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.Invoice
 {
-    public class InvoiceEditDto
+    public class EditarInvoiceDto
     {
         public Guid Id { get; set; }
         public string Numero { get; set; } = "";

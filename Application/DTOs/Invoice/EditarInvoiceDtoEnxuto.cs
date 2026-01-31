@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.Invoice
 {
-    public class UpdateInvoiceDto
+    public class EditarInvoiceDtoEnxuto
     {
         public Guid Id { get; set; }
         public Guid VendedorId { get; set; }

@@ -17,7 +17,7 @@ namespace Front.Pages.Invoices
         }
 
         [BindProperty]
-        public CreateInvoiceDto Invoice { get; set; } = new()
+        public CriarInvoiceDto Invoice { get; set; } = new()
         {
             Status = StatusInvoice.Pendente,
             DataEmissao = DateTime.Today
@@ -27,14 +27,11 @@ namespace Front.Pages.Invoices
 
         public async Task OnGetAsync()
         {
-            var vendedores =
-                await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores");
+            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores/listar");
 
             if (vendedores != null)
             {
-                Vendedores = vendedores
-                    .Select(v => new SelectListItem(v.NomeCompleto, v.Id.ToString()))
-                    .ToList();
+                Vendedores = vendedores.Select(v => new SelectListItem(v.NomeCompleto, v.Id.ToString())).ToList();
             }
         }
 
@@ -45,7 +42,7 @@ namespace Front.Pages.Invoices
                 return Page();
             }
 
-            var dto = new Application.DTOs.Invoice.CreateInvoiceDto
+            var dto = new Application.DTOs.Invoice.CriarInvoiceDto
             {
                 VendedorId = Invoice.VendedorId,
                 Cliente = Invoice.Cliente,

@@ -4,14 +4,15 @@ namespace Domain.Interfaces
 {
     public interface IInvoiceRepository
     {
-        Task AddAsync(Invoice invoice);
-        Task UpdateAsync(Invoice invoice);
-        Task<Invoice?> GetByIdAsync(Guid id);
-        Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId = null);
+        Task Criar(Invoice invoice);
+        Task Editar(Invoice invoice);
+        Task<Invoice?> ListarPorId(Guid id);
+        Task<IReadOnlyList<Invoice>> Listar(Guid? vendedorId = null);
         IQueryable<Invoice> Query();
-        Task<IReadOnlyList<Invoice>> GetByPeriodoAsync(DateTime inicio, DateTime fim);
-        Task<IReadOnlyList<Invoice>> GetByVendedorIdAsync(Guid vendedorId);
-        Task<string?> GetUltimoNumeroAsync();
-        Task<string> GetProximoNumeroAsync();
+        Task<IReadOnlyList<Invoice>> ListarPorPeriodo(DateTime inicio, DateTime fim);
+        Task<IReadOnlyList<Invoice>> ListarPorVendedor(Guid vendedorId);
+        Task<string?> BuscarUltimoNumeroInvoice();
+        Task<string> BuscarProximoNumeroInvoice();
+        Task<(IReadOnlyList<Invoice>, int)> ListarPaginado(Guid? vendedorId, int page, int pageSize);
     }
 }

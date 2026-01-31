@@ -14,7 +14,7 @@ namespace Front.Pages.Vendedores
         }
 
         [BindProperty]
-        public UpdateVendedorDto Vendedor { get; set; } = new();
+        public EditarVendedorDto Vendedor { get; set; } = new();
 
         [BindProperty]
         public Guid Id { get; set; }
@@ -34,7 +34,7 @@ namespace Front.Pages.Vendedores
             Cpf = vendedor.Documento;
             Email = vendedor.Email;
 
-            Vendedor = new UpdateVendedorDto
+            Vendedor = new EditarVendedorDto
             {
                 Nome = vendedor.Nome,
                 PercentualComissao = vendedor.PercentualComissao

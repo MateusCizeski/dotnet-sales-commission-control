@@ -4,11 +4,12 @@ namespace Domain.Interfaces
 {
     public interface IComissaoRepository
     {
-        Task<Comissao?> GetByIdAsync(Guid id);
-        Task<Comissao?> GetByInvoiceIdAsync(Guid invoiceId);
-        Task AddAsync(Comissao comissao);
-        Task<bool> ExisteComissaoParaVendedor(Guid vendedorId);
-        Task<IReadOnlyList<Comissao>> GetAllAsync();
+        Task Criar(Comissao comissao);
+        Task<IReadOnlyList<Comissao>> Listar();
         IQueryable<Comissao> Query();
+        Task<Comissao?> ListarPorId(Guid id);
+        Task<Comissao?> ListarPorInvoice(Guid invoiceId);
+        Task<bool> ExisteComissaoParaVendedor(Guid vendedorId);
+        Task<(IReadOnlyList<Comissao>, int)> ListarPaginado(int page, int pageSize);
     }
 }

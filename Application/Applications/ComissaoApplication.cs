@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Comissao;
+using Application.DTOs.Shared;
 using Application.Interfaces;
 using Domain.Interfaces;
 
@@ -15,38 +16,44 @@ namespace Application.Applications
             _unitOfWork = unitOfWork;
         }
 
-        public async Task MarcarComoPagaAsync(Guid id)
+        public async Task MarcarComoPaga(Guid id)
         {
-            var comissao = await _comissaoRepository.GetByIdAsync(id);
+            var comissao = await _comissaoRepository.ListarPorId(id);
 
             comissao.Pagar();
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task MarcarComoCanceladaAsync(Guid id)
+        public async Task MarcarComoCancelada(Guid id)
         {
-            var comissao = await _comissaoRepository.GetByIdAsync(id);
+            var comissao = await _comissaoRepository.ListarPorId(id);
 
             comissao.Cancelar();
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<IReadOnlyList<ComissaoListDto>> GetAllAsync()
+        public async Task<PagedResult<ComissaoListDto>> ListarPaginado(int page, int pageSize)
         {
-            var comissoes = await _comissaoRepository.GetAllAsync();
+            var (items, total) = await _comissaoRepository.ListarPaginado(page, pageSize);
 
-            return comissoes.Select(c => new ComissaoListDto
+            return new PagedResult<ComissaoListDto>
             {
-                Id = c.Id,
-                NumeroInvoice = c.Invoice.NumeroInvoice,
-                VendedorNome = c.Invoice.Vendedor.NomeCompleto,
-                ValorBase = c.ValorBase,
-                PercentualAplicado = c.PercentualAplicado,
-                ValorComissao = c.ValorComissao,
-                Status = c.Status,
-                DataCalculo = c.DataCalculo,
-                DataPagamento = c.DataPagamento
-            }).ToList();
+                Items = items.Select(c => new ComissaoListDto
+                {
+                    Id = c.Id,
+                    NumeroInvoice = c.Invoice.NumeroInvoice,
+                    VendedorNome = c.Invoice.Vendedor.NomeCompleto,
+                    ValorBase = c.ValorBase,
+                    PercentualAplicado = c.PercentualAplicado,
+                    ValorComissao = c.ValorComissao,
+                    Status = c.Status,
+                    DataCalculo = c.DataCalculo,
+                    DataPagamento = c.DataPagamento
+                }).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = total
+            };
         }
     }
 }

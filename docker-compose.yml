@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -21,12 +19,13 @@ services:
       - sqlserver
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: >
         Server=sqlserver,1433;
         Database=ComissoesDb;
         User Id=sa;
         Password=Your_password123;
-        TrustServerCertificate=True;
+        TrustServerCertificate=True
     ports:
       - "5001:8080"
 

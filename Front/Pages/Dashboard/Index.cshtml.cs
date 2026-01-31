@@ -7,6 +7,13 @@ namespace Front.Pages.Dashboard
 {
     public class IndexModel : PageModel
     {
+        private readonly HttpClient _client;
+
+        public IndexModel(IHttpClientFactory factory)
+        {
+            _client = factory.CreateClient("Api");
+        }
+
         public int TotalInvoices { get; set; }
         public int PendingInvoices { get; set; }
         public decimal TotalAprovadas { get; set; }
@@ -29,12 +36,7 @@ namespace Front.Pages.Dashboard
 
         public async Task OnGetAsync()
         {
-            using var client = new HttpClient
-            {
-                BaseAddress = new Uri("https://localhost:5001")
-            };
-
-            Vendedores = await ObterVendedoresAsync(client);
+            Vendedores = await ObterVendedoresAsync();
 
             var query = new Dictionary<string, string>();
 
@@ -60,7 +62,7 @@ namespace Front.Pages.Dashboard
 
             var url = QueryHelpers.AddQueryString("/api/dashboard/invoices/summary", query);
 
-            var resumo = await client.GetFromJsonAsync<InvoiceSummaryDto>(url);
+            var resumo = await _client.GetFromJsonAsync<InvoiceSummaryDto>(url);
 
             if (resumo == null)
             {
@@ -87,9 +89,9 @@ namespace Front.Pages.Dashboard
             public List<VendedorDashboardDto> TopVendedores { get; set; } = new();
         }
 
-        private async Task<List<VendedorDropdownDto>> ObterVendedoresAsync(HttpClient client)
+        private async Task<List<VendedorDropdownDto>> ObterVendedoresAsync()
         {
-            var vendedores = await client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores");
+            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores/listar");
 
             return vendedores ?? new List<VendedorDropdownDto>();
         }

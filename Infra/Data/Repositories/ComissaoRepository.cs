@@ -1,5 +1,4 @@
 ﻿using Domain.Entities;
-using Domain.Enums;
 using Domain.Interfaces;
 using Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +14,12 @@ namespace Infra.Data.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(Comissao comissao)
+        public async Task Criar(Comissao comissao)
         {
             await _context.Comissoes.AddAsync(comissao);
         }
 
-        public async Task<IReadOnlyList<Comissao>> GetAllAsync()
+        public async Task<IReadOnlyList<Comissao>> Listar()
         {
             return await _context.Comissoes.Include(c => c.Invoice).ThenInclude(i => i.Vendedor).ToListAsync();
         }
@@ -30,12 +29,12 @@ namespace Infra.Data.Repositories
             return _context.Comissoes.Include(c => c.Invoice).ThenInclude(i => i.Vendedor);
         }
 
-        public async Task<Comissao?> GetByIdAsync(Guid id)
+        public async Task<Comissao?> ListarPorId(Guid id)
         {
             return await _context.Comissoes.FindAsync(id);
         }
 
-        public async Task<Comissao?> GetByInvoiceIdAsync(Guid invoiceId)
+        public async Task<Comissao?> ListarPorInvoice(Guid invoiceId)
         {
             return await _context.Comissoes.FirstOrDefaultAsync(c => c.InvoiceId == invoiceId);
         }
@@ -43,6 +42,20 @@ namespace Infra.Data.Repositories
         public async Task<bool> ExisteComissaoParaVendedor(Guid vendedorId)
         {
             return await _context.Comissoes.AnyAsync(c => c.Invoice.VendedorId == vendedorId);
+        }
+
+        public async Task<(IReadOnlyList<Comissao>, int)> ListarPaginado(int page, int pageSize)
+        {
+            var query = _context.Comissoes.Include(i => i.Invoice).ThenInclude(i => i.Vendedor).AsQueryable();
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, total);
         }
     }
 }

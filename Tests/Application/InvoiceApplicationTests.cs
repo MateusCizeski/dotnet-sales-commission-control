@@ -2,7 +2,6 @@
 using Application.DTOs.Invoice;
 using Domain.Entities;
 using Domain.Interfaces;
-using Domain.Services;
 using Moq;
 using Xunit;
 
@@ -14,7 +13,6 @@ namespace Tests.Application
         private readonly Mock<IVendedorRepository> _vendedorRepo = new();
         private readonly Mock<IComissaoRepository> _comissaoRepo = new();
         private readonly Mock<IUnitOfWork> _unitOfWork = new();
-        private readonly ComissaoService _comissaoService = new();
         private readonly InvoiceApplication _app;
 
         public InvoiceApplicationTests()
@@ -23,7 +21,6 @@ namespace Tests.Application
                 _invoiceRepo.Object,
                 _vendedorRepo.Object,
                 _comissaoRepo.Object,
-                _comissaoService,
                 _unitOfWork.Object
             );
         }
@@ -33,9 +30,9 @@ namespace Tests.Application
         {
             var vendedorId = Guid.NewGuid();
             var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
-            _vendedorRepo.Setup(r => r.GetByIdAsync(vendedorId)).ReturnsAsync(vendedor);
+            _vendedorRepo.Setup(r => r.ListarPorId(vendedorId)).ReturnsAsync(vendedor);
 
-            var dto = new CreateInvoiceDto
+            var dto = new CriarInvoiceDto
             {
                 VendedorId = vendedorId,
                 ValorTotal = 1000,
@@ -44,20 +41,20 @@ namespace Tests.Application
                 DataEmissao = DateTime.UtcNow
             };
 
-            var invoiceId = await _app.CriarAsync(dto);
+            var invoiceId = await _app.Criar(dto);
 
-            _invoiceRepo.Verify(r => r.AddAsync(It.IsAny<Invoice>()), Times.Once);
-            _comissaoRepo.Verify(r => r.AddAsync(It.IsAny<Comissao>()), Times.Once);
-            _unitOfWork.Verify(u => u.CommitAsync(), Times.Once);
+            _invoiceRepo.Verify(r => r.Criar(It.IsAny<Invoice>()), Times.Once);
+            _comissaoRepo.Verify(r => r.Criar(It.IsAny<Comissao>()), Times.Once);
+            _unitOfWork.Verify(u => u.CommitAsync(), Times.Exactly(2));
             Assert.NotEqual(Guid.Empty, invoiceId);
         }
 
         [Fact]
         public async Task CriarAsync_VendedorNaoEncontrado_LancaException()
         {
-            _vendedorRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Vendedor)null);
+            _vendedorRepo.Setup(r => r.ListarPorId(It.IsAny<Guid>())).ReturnsAsync((Vendedor)null);
 
-            var dto = new CreateInvoiceDto
+            var dto = new CriarInvoiceDto
             {
                 VendedorId = Guid.NewGuid(),
                 ValorTotal = 1000,
@@ -66,7 +63,7 @@ namespace Tests.Application
                 DataEmissao = DateTime.UtcNow
             };
 
-            await Assert.ThrowsAsync<Exception>(() => _app.CriarAsync(dto));
+            await Assert.ThrowsAsync<Exception>(() => _app.Criar(dto));
         }
     }
 }

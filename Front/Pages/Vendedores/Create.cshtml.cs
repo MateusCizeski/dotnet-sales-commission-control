@@ -15,7 +15,7 @@ namespace Front.Pages.Vendedores
         }
 
         [BindProperty]
-        public CreateVendedorDto Vendedor { get; set; } = new();
+        public CriarVendedorDto Vendedor { get; set; } = new();
 
         public async Task<IActionResult> OnPostAsync()
         {

@@ -1,9 +1,9 @@
 ﻿using Application.DTOs.Invoice;
+using Application.DTOs.Shared;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
-using Domain.Services;
 
 namespace Application.Applications
 {
@@ -12,51 +12,48 @@ namespace Application.Applications
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IVendedorRepository _vendedorRepository;
         private readonly IComissaoRepository _comissaoRepository;
-        private readonly ComissaoService _comissaoService;
         private readonly IUnitOfWork _unitOfWork;
 
         public InvoiceApplication(
             IInvoiceRepository invoiceRepository,
             IVendedorRepository vendedorRepository,
             IComissaoRepository comissaoRepository,
-            ComissaoService comissaoService,
             IUnitOfWork unitOfWork)
         {
             _invoiceRepository = invoiceRepository;
             _vendedorRepository = vendedorRepository;
             _comissaoRepository = comissaoRepository;
-            _comissaoService = comissaoService;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> CriarAsync(CreateInvoiceDto dto)
+        public async Task<Guid> Criar(CriarInvoiceDto dto)
         {
-            var vendedor = await _vendedorRepository.GetByIdAsync(dto.VendedorId);
+            var vendedor = await _vendedorRepository.ListarPorId(dto.VendedorId);
 
             if (vendedor == null)
             {
                 throw new Exception("Vendedor não encontrado");
             }
 
-            var numero = await _invoiceRepository.GetProximoNumeroAsync();
+            var numero = await _invoiceRepository.BuscarProximoNumeroInvoice();
 
             var invoice = new Invoice(vendedor, numero, dto.DataEmissao, dto.Cliente, dto.CnpjCpfCliente, dto.ValorTotal, dto.Observacoes);
 
-            await _invoiceRepository.AddAsync(invoice);
+            await _invoiceRepository.Criar(invoice);
             await _unitOfWork.CommitAsync();
 
 
             var comissao = new Comissao(invoice.Id, invoice.ValorTotal, vendedor.PercentualComissao);
 
-            await _comissaoRepository.AddAsync(comissao);
+            await _comissaoRepository.Criar(comissao);
             await _unitOfWork.CommitAsync();
 
             return invoice.Id;
         }
 
-        public async Task AprovarAsync(Guid id)
+        public async Task Aprovar(Guid id)
         {
-            var invoice = await _invoiceRepository.GetByIdAsync(id);
+            var invoice = await _invoiceRepository.ListarPorId(id);
             
             if (invoice == null)
             {
@@ -65,13 +62,13 @@ namespace Application.Applications
 
             invoice.Aprovar();
 
-            await _invoiceRepository.UpdateAsync(invoice);
+            await _invoiceRepository.Editar(invoice);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task CancelarAsync(Guid id)
+        public async Task Cancelar(Guid id)
         {
-            var invoice = await _invoiceRepository.GetByIdAsync(id);
+            var invoice = await _invoiceRepository.ListarPorId(id);
             
             if (invoice == null)
             {
@@ -80,13 +77,13 @@ namespace Application.Applications
 
             invoice.Cancelar();
 
-            await _invoiceRepository.UpdateAsync(invoice);
+            await _invoiceRepository.Editar(invoice);
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task UpdateAsync(Guid id, UpdateInvoiceDto dto)
+        public async Task Editar(Guid id, EditarInvoiceDtoEnxuto dto)
         {
-            var invoice = await _invoiceRepository.GetByIdAsync(id);
+            var invoice = await _invoiceRepository.ListarPorId(id);
             
             if (invoice == null)
             {
@@ -98,18 +95,18 @@ namespace Application.Applications
                 throw new Exception("Não é permitido alterar invoice aprovada.");
             }
 
-            var vendedor = await _vendedorRepository.GetByIdAsync(dto.VendedorId);
+            var vendedor = await _vendedorRepository.ListarPorId(dto.VendedorId);
 
             invoice.AlterarVendedor(vendedor);
             invoice.AlterarValorTotal(dto.ValorTotal);
-            await AtualizarComissaoAsync(invoice, vendedor);
+            await EditarComissao(invoice, vendedor);
 
             await _unitOfWork.CommitAsync();
         }
 
-        private async Task AtualizarComissaoAsync(Invoice invoice, Vendedor vendedor)
+        private async Task EditarComissao(Invoice invoice, Vendedor vendedor)
         {
-            var comissao = await _comissaoRepository.GetByInvoiceIdAsync(invoice.Id);
+            var comissao = await _comissaoRepository.ListarPorInvoice(invoice.Id);
 
             if (comissao == null)
             {
@@ -123,21 +120,16 @@ namespace Application.Applications
             await _unitOfWork.CommitAsync();
         }
 
-        public Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId)
+        public async Task<EditarInvoiceDto> ListarPorId(Guid id)
         {
-            return _invoiceRepository.GetAllAsync(vendedorId);
-        }
-
-        public async Task<InvoiceEditDto> ObterPorIdAsync(Guid id)
-        {
-            var invoice = await _invoiceRepository.GetByIdAsync(id);
+            var invoice = await _invoiceRepository.ListarPorId(id);
 
             if (invoice == null)
             {
                 throw new Exception("Invoice não encontrada");
             }
 
-            return new InvoiceEditDto
+            return new EditarInvoiceDto
             {
                 Id = invoice.Id,
                 Numero = invoice.NumeroInvoice,
@@ -149,10 +141,10 @@ namespace Application.Applications
             };
         }
 
-        public async Task<IReadOnlyList<InvoiceListDto>> ObterTodosDtoAsync(Guid? vendedorId)
+        public async Task<IReadOnlyList<ListarInvoiceDto>> Listar(Guid vendedorId)
         {
-            var invoices = await _invoiceRepository.GetAllAsync(vendedorId);
-            return invoices.Select(i => new InvoiceListDto
+            var invoices = await _invoiceRepository.ListarPorVendedor(vendedorId);
+            return invoices.Select(i => new ListarInvoiceDto
             {
                 Id = i.Id,
                 NumeroInvoice = i.NumeroInvoice,
@@ -166,6 +158,33 @@ namespace Application.Applications
                     NomeCompleto = i.Vendedor.NomeCompleto
                 }
             }).ToList();
+        }
+
+        public async Task<PagedResult<InvoiceDto>> ListarPaginado(Guid? vendedorId, int page, int pageSize)
+        {
+            var (items, total) = await _invoiceRepository.ListarPaginado(vendedorId, page, pageSize);
+
+            return new PagedResult<InvoiceDto>
+            {
+                Items = items.Select(i => new InvoiceDto
+                {
+                    Id = i.Id,
+                    VendedorId = i.VendedorId,
+                    ValorTotal = i.ValorTotal,
+                    Status = i.Status,
+                    DataEmissao = i.DataEmissao,
+                    Cliente = i.Cliente,
+                    NumeroInvoice = i.NumeroInvoice,
+                    Vendedor = new VendedorDto()
+                    {
+                        Id = i.VendedorId,
+                        NomeCompleto = i.Vendedor.NomeCompleto
+                    }
+                }).ToList(),
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = total
+            };
         }
     }
 }

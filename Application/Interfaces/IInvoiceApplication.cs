@@ -1,16 +1,16 @@
 ﻿using Application.DTOs.Invoice;
-using Domain.Entities;
+using Application.DTOs.Shared;
 
 namespace Application.Interfaces
 {
     public interface IInvoiceApplication
     {
-        Task<Guid> CriarAsync(CreateInvoiceDto dto);
-        Task AprovarAsync(Guid id);
-        Task CancelarAsync(Guid id);
-        Task UpdateAsync(Guid id, UpdateInvoiceDto dto);
-        Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId);
-        Task<InvoiceEditDto> ObterPorIdAsync(Guid id);
-        Task<IReadOnlyList<InvoiceListDto>> ObterTodosDtoAsync(Guid? vendedorId);
+        Task<Guid> Criar(CriarInvoiceDto dto);
+        Task Aprovar(Guid id);
+        Task Cancelar(Guid id);
+        Task Editar(Guid id, EditarInvoiceDtoEnxuto dto);
+        Task<EditarInvoiceDto> ListarPorId(Guid id);
+        Task<IReadOnlyList<ListarInvoiceDto>> Listar(Guid vendedorId);
+        Task<PagedResult<InvoiceDto>> ListarPaginado(Guid? vendedorId, int page, int pageSize);
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Application.DTOs.Comissao;
+using Application.DTOs.Shared;
 using Domain.Entities;
 
 namespace Application.Interfaces
 {
     public interface IComissaoApplication
     {
-        Task MarcarComoPagaAsync(Guid id);
-        Task MarcarComoCanceladaAsync(Guid id);
-        Task<IReadOnlyList<ComissaoListDto>> GetAllAsync();
+        Task MarcarComoPaga(Guid id);
+        Task MarcarComoCancelada(Guid id);
+        Task<PagedResult<ComissaoListDto>> ListarPaginado(int page, int pageSize);
     }
 }

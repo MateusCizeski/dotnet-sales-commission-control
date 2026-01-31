@@ -42,11 +42,13 @@ namespace Application.Applications
 
             var invoice = new Invoice(vendedor, numero, dto.DataEmissao, dto.Cliente, dto.CnpjCpfCliente, dto.ValorTotal, dto.Observacoes);
 
-            var comissao = _comissaoService.Calcular(invoice, vendedor);
-
             await _invoiceRepository.AddAsync(invoice);
-            await _comissaoRepository.AddAsync(comissao);
+            await _unitOfWork.CommitAsync();
 
+
+            var comissao = new Comissao(invoice.Id, invoice.ValorTotal, vendedor.PercentualComissao);
+
+            await _comissaoRepository.AddAsync(comissao);
             await _unitOfWork.CommitAsync();
 
             return invoice.Id;
@@ -100,14 +102,12 @@ namespace Application.Applications
 
             invoice.AlterarVendedor(vendedor);
             invoice.AlterarValorTotal(dto.ValorTotal);
-
-            await _invoiceRepository.UpdateAsync(invoice);
-            await AtualizarComissaoAsync(invoice);
+            await AtualizarComissaoAsync(invoice, vendedor);
 
             await _unitOfWork.CommitAsync();
         }
 
-        private async Task AtualizarComissaoAsync(Invoice invoice)
+        private async Task AtualizarComissaoAsync(Invoice invoice, Vendedor vendedor)
         {
             var comissao = await _comissaoRepository.GetByInvoiceIdAsync(invoice.Id);
 
@@ -116,13 +116,11 @@ namespace Application.Applications
                 throw new Exception("Comissão não encontrada para esta invoice.");
             }
 
-            var vendedor = await _vendedorRepository.GetByIdAsync(invoice.VendedorId);
-
             var valorComissao = Math.Round(invoice.ValorTotal * (vendedor.PercentualComissao / 100), 2);
 
             comissao.AtualizarValores(invoice.ValorTotal, vendedor.PercentualComissao, valorComissao);
 
-            await _comissaoRepository.UpdateAsync(comissao);
+            await _unitOfWork.CommitAsync();
         }
 
         public Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId)
@@ -157,12 +155,16 @@ namespace Application.Applications
             return invoices.Select(i => new InvoiceListDto
             {
                 Id = i.Id,
-                Numero = i.NumeroInvoice,
+                NumeroInvoice = i.NumeroInvoice,
                 Cliente = i.Cliente,
                 DataEmissao = i.DataEmissao,
-                Status = i.Status.ToString(),
-                VendedorNome = i.Vendedor.NomeCompleto,
-                ValorTotal = i.ValorTotal
+                Status = i.Status,
+                ValorTotal = i.ValorTotal,
+                Vendedor = new VendedorDto
+                {
+                    Id = i.Vendedor.Id,
+                    NomeCompleto = i.Vendedor.NomeCompleto
+                }
             }).ToList();
         }
     }

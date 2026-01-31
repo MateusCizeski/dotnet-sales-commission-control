@@ -34,11 +34,12 @@ namespace Front.Pages.Invoices
 
             var url = QueryHelpers.AddQueryString("/api/invoices", query);
 
-            var invoicesApi =
-                await _client.GetFromJsonAsync<List<InvoiceListDto>>(url);
+            var invoicesApi = await _client.GetFromJsonAsync<List<InvoiceListDto>>(url);
 
             if (invoicesApi != null)
+            {
                 Invoices = invoicesApi;
+            }
         }
 
         public async Task<IActionResult> OnPostAprovarAsync(Guid id)
@@ -75,18 +76,33 @@ namespace Front.Pages.Invoices
 
     public class InvoiceListDto
     {
+        [JsonPropertyName("id")]
         public Guid Id { get; set; }
+
+        [JsonPropertyName("numeroInvoice")]
         public string NumeroInvoice { get; set; } = string.Empty;
+
+        [JsonPropertyName("cliente")]
         public string Cliente { get; set; } = string.Empty;
-        public decimal ValorTotal { get; set; }
-        public StatusInvoice Status { get; set; }
+        
+        [JsonPropertyName("dataEmissao")]
         public DateTime DataEmissao { get; set; }
 
+        [JsonPropertyName("status")]
+        public StatusInvoice Status { get; set; }
+
+        [JsonPropertyName("valorTotal")]
+        public decimal ValorTotal { get; set; }
+
+        [JsonPropertyName("vendedor")]
         public VendedorDto Vendedor { get; set; } = new();
 
         public class VendedorDto
         {
+            [JsonPropertyName("id")]
             public Guid Id { get; set; }
+
+            [JsonPropertyName("nomeCompleto")]
             public string NomeCompleto { get; set; } = string.Empty;
         }
     }

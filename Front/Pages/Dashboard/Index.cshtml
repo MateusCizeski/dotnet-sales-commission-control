@@ -50,29 +50,29 @@
 </form>
 
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card p-3 border-primary">
+    <div class="col-md-3 d-flex">
+        <div class="card p-3 border-primary h-100 w-100">
             <h5>Total de Invoices</h5>
             <h2>@Model.TotalInvoices</h2>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card p-3 border-warning">
+    <div class="col-md-3 d-flex">
+        <div class="card p-3 border-warning h-100 w-100">
             <h5>Invoices Pendentes</h5>
             <h2>@Model.PendingInvoices</h2>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card p-3 border-info">
+    <div class="col-md-3 d-flex">
+        <div class="card p-3 border-info h-100 w-100">
             <h5>Valor Total Invoices Aprovadas</h5>
             <h2>@Model.TotalAprovadas.ToString("C")</h2>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card p-3 border-success">
+    <div class="col-md-3 d-flex">
+        <div class="card p-3 border-success h-100 w-100">
             <h5>Comissões Pendentes</h5>
             <h2>@Model.PendingCommissions.ToString("C")</h2>
         </div>

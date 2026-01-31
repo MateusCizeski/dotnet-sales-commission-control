@@ -26,13 +26,22 @@ namespace Infra.Data.Repositories
 
         public async Task<Vendedor?> GetByIdAsync(Guid id)
         {
-            return await _context.Vendedores.FindAsync(id);
+            return await _context.Vendedores.FirstOrDefaultAsync(v => v.Id == id);
         }
 
         public Task RemoveAsync(Vendedor vendedor)
         {
             _context.Vendedores.Remove(vendedor);
             return Task.CompletedTask;
+        }
+
+        public async Task<bool> VerificarCpfExistente(string cpf)
+        {
+            return await _context.Vendedores.AnyAsync(v => v.Cpf == cpf);
+        }
+        public async Task<bool> VerificarEmailExistente(string email)
+        {
+            return await _context.Vendedores.AnyAsync(v => v.Email == email);
         }
     }
 }

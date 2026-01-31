@@ -27,7 +27,7 @@ namespace Infra.Data.Repositories
 
         public async Task<Invoice?> GetByIdAsync(Guid id)
         {
-            return await _context.Invoices.Include(i => i.Vendedor).Include(i => i.Comissao).FirstOrDefaultAsync(i => i.Id == id);
+            return await _context.Invoices.FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<IReadOnlyList<Invoice>> GetAllAsync(Guid? vendedorId = null)

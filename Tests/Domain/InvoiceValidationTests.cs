@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Validation;
 using Xunit;
 
@@ -6,42 +7,50 @@ namespace Tests.Domain
 {
     public class InvoiceValidationTests
     {
-        private Vendedor vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+        private Vendedor _vendedorAtivo = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
 
         [Fact]
-        public void ValorTotalNegativo_DeveLancarErro()
+        public void ValorTotalZero_DeveLancarDomainException()
         {
-            Assert.Throws<ArgumentException>(() =>
-                InvoiceValidation.ValidarInvoice(vendedor, "Cliente", "12345678909", 0, DateTime.UtcNow, null)
+            Assert.Throws<DomainException>(() => new Invoice(_vendedorAtivo, "INV-0001", DateTime.UtcNow, "Cliente", "12345678909", 0));
+        }
+
+        [Fact]
+        public void ClienteVazio_DeveLancarDomainException()
+        {
+            Assert.Throws<DomainException>(() =>
+                new Invoice(_vendedorAtivo, "INV-0001", DateTime.UtcNow, "", "12345678909", 100)
             );
         }
 
         [Fact]
-        public void ClienteVazio_DeveLancarErro()
+        public void CnpjCpfInvalido_DeveLancarDomainException()
         {
-            Assert.Throws<ArgumentException>(() =>
-                InvoiceValidation.ValidarInvoice(vendedor, "", "12345678909", 100, DateTime.UtcNow, null)
+            Assert.Throws<DomainException>(() =>
+                new Invoice(_vendedorAtivo, "INV-0001", DateTime.UtcNow, "Cliente", "00000000000", 100)
             );
         }
 
         [Fact]
-        public void CnpjCpfInvalido_DeveLancarErro()
+        public void VendedorInativo_DeveLancarDomainException()
         {
-            Assert.Throws<ArgumentException>(() =>
-                InvoiceValidation.ValidarInvoice(vendedor, "Cliente", "00000000000", 100, DateTime.UtcNow, null)
+            var vendedorInativo = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+
+            vendedorInativo.Inativar();
+
+            Assert.Throws<DomainException>(() =>
+                new Invoice(vendedorInativo, "INV-0001", DateTime.UtcNow, "Cliente", "12345678909", 100)
             );
         }
 
         [Fact]
-        public void VendedorInativo_DeveLancarErro()
+        public void InvoiceValida_DeveCriarComissaoAutomaticamente()
         {
-            var vendedor = new Vendedor("Nome", "12345678909", "teste@teste.com", 10);
+            var invoice = new Invoice(_vendedorAtivo, "INV-0001", DateTime.UtcNow, "Cliente", "12345678909", 1000);
 
-            vendedor.Inativar();
-
-            Assert.Throws<ArgumentException>(() =>
-                InvoiceValidation.ValidarInvoice(vendedor, "Cliente", "12345678909", 100, DateTime.UtcNow, null)
-            );
+            Assert.NotNull(invoice.Comissao);
+            Assert.Equal(1000, invoice.Comissao.ValorBase);
+            Assert.Equal(10, invoice.Comissao.PercentualAplicado);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Domain.Exceptions;
 
 namespace Domain.Entities
 {
@@ -30,6 +31,11 @@ namespace Domain.Entities
 
         public void Pagar()
         {
+            if (Status == StatusComissao.Cancelada)
+            {
+                throw new DomainException("Não é possível pagar comissão cancelada.");
+            }
+
             Status = StatusComissao.Paga;
             DataPagamento = DateTime.UtcNow;
         }

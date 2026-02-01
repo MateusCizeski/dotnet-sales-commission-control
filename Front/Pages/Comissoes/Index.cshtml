@@ -73,7 +73,20 @@
                 <td>@c.ValorBase.ToString("C")</td>
                 <td>@c.PercentualAplicado</td>
                 <td>@c.ValorComissao.ToString("C")</td>
-                <td>@c.Status</td>
+                <td>
+                    @if (c.Status == Domain.Enums.StatusComissao.Pendente)
+                    {
+                        <span class="badge bg-warning text-dark">Pendente</span>
+                    }
+                    else if (c.Status == Domain.Enums.StatusComissao.Paga)
+                    {
+                        <span class="badge bg-success">Paga</span>
+                    }
+                    else if (c.Status == Domain.Enums.StatusComissao.Cancelada)
+                    {
+                        <span class="badge bg-secondary">Cancelada</span>
+                    }
+                </td>
                 <td>@c.DataCalculo.ToShortDateString()</td>
                 <td>@(c.DataPagamento?.ToShortDateString() ?? "-")</td>
                 <td class="d-flex gap-1 align-items-center">
@@ -95,13 +108,9 @@
                             </button>
                         </form>
                     }
-                    else if (c.Status == Domain.Enums.StatusComissao.Paga)
+                    else
                     {
-                        <span class="badge bg-success">Paga</span>
-                    }
-                    else if (c.Status == Domain.Enums.StatusComissao.Cancelada)
-                    {
-                        <span class="badge bg-secondary">Cancelada</span>
+                        <span class="text-muted">Sem ações</span>
                     }
                 </td>
             </tr>

@@ -19,9 +19,9 @@ namespace Domain.Entities
 
         public Vendedor(string nomeCompleto, string cpf, string email, decimal percentualComissao, string? telefone = null)
         {
-            if (nomeCompleto == null) throw new DomainException("Nome completo é obrigatório");
-            if (cpf == null) throw new DomainException("CPF inválido");
-            if (email == null) throw new DomainException("Email inválido");
+            if (string.IsNullOrWhiteSpace(nomeCompleto)) throw new DomainException("Nome completo é obrigatório");
+            if (string.IsNullOrWhiteSpace(cpf)) throw new DomainException("CPF inválido");
+            if (string.IsNullOrWhiteSpace(email)) throw new DomainException("Email inválido");
 
             cpf = NormalizarCpf(cpf);
             ValidarNome(nomeCompleto);

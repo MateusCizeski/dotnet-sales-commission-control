@@ -133,13 +133,13 @@ namespace Front.Pages.Comissoes
         public async Task<IActionResult> OnGetExportPdfAsync(string? status)
         {
             QuestPDF.Settings.License = LicenseType.Community;
-
+            
             var query = new Dictionary<string, string>
             {
                 { "page", CurrentPage.ToString() },
-                { "pa" +
-                "geSize", PageSize.ToString() }
+                { "pageSize", PageSize.ToString() }
             };
+
             var url = QueryHelpers.AddQueryString("/api/comissoes", query);
             var comissoesResult = await _client.GetFromJsonAsync<PagedResultDto<ComissaoListDto>>(url);
 

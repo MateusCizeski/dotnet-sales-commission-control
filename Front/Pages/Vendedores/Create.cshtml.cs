@@ -1,7 +1,6 @@
 using Application.DTOs.Vendedor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Globalization;
 
 namespace Front.Pages.Vendedores
 {
@@ -19,14 +18,6 @@ namespace Front.Pages.Vendedores
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!decimal.TryParse(Vendedor.PercentualComissao.ToString().Replace(',', '.'), NumberStyles.Number, CultureInfo.InvariantCulture, out var percentual))
-            {
-                ModelState.AddModelError(nameof(Vendedor.PercentualComissao), "Percentual inválido");
-                return Page();
-            }
-
-            Vendedor.PercentualComissao = percentual;
-
             if (!ModelState.IsValid)
             {
                 return Page();

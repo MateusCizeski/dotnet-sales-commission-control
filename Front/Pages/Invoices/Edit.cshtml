@@ -4,7 +4,9 @@
 <h1>Editar Invoice</h1>
 
 <form method="post" class="col-md-6">
-
+    
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    
     <input type="hidden" asp-for="Invoice.Id" />
 
     <div class="mb-3">

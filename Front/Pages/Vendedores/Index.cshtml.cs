@@ -24,9 +24,6 @@ namespace Front.Pages.Vendedores
         public bool? FiltroAtivo { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public Guid? FilterVendedorId { get; set; }
-
-        [BindProperty(SupportsGet = true)]
         public int CurrentPage { get; set; } = 1;
 
         [BindProperty(SupportsGet = true)]

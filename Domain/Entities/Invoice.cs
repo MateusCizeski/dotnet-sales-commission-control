@@ -27,7 +27,7 @@ namespace Domain.Entities
 
             ValidarVendedor(vendedor);
             ValidarCliente(cliente);
-            ValidarCnpjCpfCliente(cnpjCpfCliente);
+            ValidarCnpjCpfCliente(cnpjCpfNormalizado);
             ValidarValorTotal(valorTotal);
             ValidarDataEmissao(dataEmissao);
             ValidarObservacoes(observacoes);

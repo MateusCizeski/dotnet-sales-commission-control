@@ -42,7 +42,7 @@ namespace Front.Pages.Invoices
                 return Page();
             }
 
-            var dto = new Application.DTOs.Invoice.CriarInvoiceDto
+            var dto = new CriarInvoiceDto
             {
                 VendedorId = Invoice.VendedorId,
                 Cliente = Invoice.Cliente,
@@ -50,7 +50,7 @@ namespace Front.Pages.Invoices
                 ValorTotal = Invoice.ValorTotal,
                 DataEmissao = Invoice.DataEmissao,
                 Observacoes = Invoice.Observacoes,
-                Status = (Domain.Enums.StatusInvoice)Invoice.Status
+                Status = Invoice.Status
             };
 
             var response = await _client.PostAsJsonAsync("/api/invoices", dto);

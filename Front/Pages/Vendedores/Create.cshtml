@@ -26,7 +26,7 @@
 
     <div class="mb-3">
         <label>% Comissão</label>
-        <input asp-for="Vendedor.PercentualComissao" type="text" class="form-control" placeholder="Ex: 7,00" />
+        <input asp-for="Vendedor.PercentualComissao" type="number" step="0.01" class="form-control" />
         <span asp-validation-for="Vendedor.PercentualComissao" class="text-danger"></span>
     </div>
 

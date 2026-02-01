@@ -76,6 +76,7 @@ namespace Application.Applications
             }
 
             invoice.Cancelar();
+            invoice.Comissao.Cancelar();
 
             await _invoiceRepository.Editar(invoice);
             await _unitOfWork.CommitAsync();

@@ -17,6 +17,8 @@ else
     <form method="post" class="col-md-6">
         <input type="hidden" asp-for="Id" />
 
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
         <div class="mb-3">
             <label class="form-label">Nome Completo</label>
             <input asp-for="Vendedor.Nome" class="form-control" />
@@ -34,7 +36,7 @@ else
 
         <div class="mb-3">
             <label class="form-label">Percentual de Comissão (%)</label>
-            <input asp-for="Vendedor.PercentualComissao" type="number" step="0.01" class="form-control" placeholder="Ex: 7,00" />
+            <input asp-for="Vendedor.PercentualComissao" type="number" step="0.01" class="form-control" />
             <span asp-validation-for="Vendedor.PercentualComissao" class="text-danger"></span>
         </div>
 

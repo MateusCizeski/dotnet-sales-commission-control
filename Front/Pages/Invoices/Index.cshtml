@@ -86,7 +86,20 @@
                 <td>@invoice.Vendedor.NomeCompleto</td>
                 <td>@invoice.Cliente</td>
                 <td>@invoice.ValorTotal.ToString("C")</td>
-                <td>@invoice.Status</td>
+                <td>
+                    @if (invoice.Status == Domain.Enums.StatusInvoice.Pendente)
+                    {
+                        <span class="badge bg-warning text-dark">Pendente</span>
+                    }
+                    else if (invoice.Status == Domain.Enums.StatusInvoice.Aprovada)
+                    {
+                        <span class="badge bg-success">Aprovada</span>
+                    }
+                    else if (invoice.Status == Domain.Enums.StatusInvoice.Cancelada)
+                    {
+                        <span class="badge bg-danger">Cancelada</span>
+                    }
+                </td>
                 <td>@invoice.DataEmissao.ToShortDateString()</td>
                 <td class="d-flex gap-1">
                     <a asp-page="Edit" asp-route-id="@invoice.Id" class="btn btn-sm btn-primary">Editar</a>

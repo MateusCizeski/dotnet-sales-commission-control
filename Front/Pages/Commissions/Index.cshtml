@@ -1,0 +1,113 @@
+@page
+@model Front.Pages.Commissions.IndexModel
+@using Front.Models
+@{
+    ViewData["Title"] = "Commissions";
+}
+
+<h1>Commissions</h1>
+
+<partial name="_Messages" model="Model" />
+
+<form method="get" class="mb-3 row g-2 align-items-end">
+    @if (Model.IsAdmin)
+    {
+        <div class="col-md-3">
+            <label class="form-label">Seller</label>
+            <select name="SellerId" class="form-select">
+                <option value="">All</option>
+                @foreach (var seller in Model.Sellers)
+                {
+                    <option value="@seller.Id" selected="@(Model.SellerId == seller.Id)">@seller.FullName</option>
+                }
+            </select>
+        </div>
+    }
+
+    <div class="col-md-2">
+        <label class="form-label">Status</label>
+        <select name="Status" class="form-select">
+            <option value="">All</option>
+            @foreach (var status in Enum.GetValues<CommissionStatus>())
+            {
+                <option value="@status" selected="@(Model.Status == status)">@status</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <partial name="_PageSizeSelect" model="Model" />
+    </div>
+
+    <div class="col-md-1">
+        <button class="btn btn-primary">Search</button>
+    </div>
+
+    <div class="col d-flex justify-content-end">
+        <a asp-page-handler="ExportExcel" asp-all-route-data="Model.RouteFilters" class="btn btn-outline-success me-2">Export Excel</a>
+        <a asp-page-handler="ExportPdf" asp-all-route-data="Model.RouteFilters" class="btn btn-outline-danger">Export PDF</a>
+    </div>
+</form>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Invoice</th>
+            <th>Seller</th>
+            <th>Base amount</th>
+            <th>Rate</th>
+            <th>Commission</th>
+            <th>Status</th>
+            <th>Calculated</th>
+            <th>Paid</th>
+            @if (Model.IsAdmin)
+            {
+                <th>Actions</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var commission in Model.Commissions)
+        {
+            <tr>
+                <td>@commission.Invoice?.Number</td>
+                <td>@commission.Invoice?.Seller?.FullName</td>
+                <td>@commission.BaseAmount.ToString("C")</td>
+                <td>@commission.Rate.ToString("N2")%</td>
+                <td>@commission.Amount.ToString("C")</td>
+                <td>
+                    @switch (commission.Status)
+                    {
+                        case CommissionStatus.Pending:
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            break;
+                        case CommissionStatus.Paid:
+                            <span class="badge bg-success">Paid</span>
+                            break;
+                        case CommissionStatus.Cancelled:
+                            <span class="badge bg-danger">Cancelled</span>
+                            break;
+                    }
+                </td>
+                <td>@commission.CalculatedAt.ToShortDateString()</td>
+                <td>@(commission.PaidAt?.ToShortDateString() ?? "-")</td>
+                @if (Model.IsAdmin)
+                {
+                    <td class="d-flex gap-1">
+                        @if (commission.Status == CommissionStatus.Pending)
+                        {
+                            <form method="post" asp-page-handler="Pay" asp-all-route-data="Model.RouteFor(commission.Id)">
+                                <button class="btn btn-sm btn-success">Pay</button>
+                            </form>
+                            <form method="post" asp-page-handler="Cancel" asp-all-route-data="Model.RouteFor(commission.Id)" onsubmit="return confirm('Cancel this commission?');">
+                                <button class="btn btn-sm btn-danger">Cancel</button>
+                            </form>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<partial name="_Pager" model="Model" />

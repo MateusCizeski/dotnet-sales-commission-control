@@ -1,98 +1,51 @@
-using Application.DTOs.Invoice;
-using Domain.Enums;
+using Front.Models;
+using Front.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Text.Json.Serialization;
 
 namespace Front.Pages.Invoices
 {
-    public class CreateModel : PageModel
+    [Authorize(Roles = FrontClaims.AdminRole)]
+    public class CreateModel : ApiPageModel
     {
-        private readonly HttpClient _client;
-
-        public CreateModel(IHttpClientFactory factory)
-        {
-            _client = factory.CreateClient("Api");
-        }
+        public CreateModel(ApiClient api) : base(api) { }
 
         [BindProperty]
-        public CriarInvoiceDto Invoice { get; set; } = new()
-        {
-            Status = StatusInvoice.Pendente,
-            DataEmissao = DateTime.Today
-        };
+        public InvoiceForm Input { get; set; } = new();
 
-        public List<SelectListItem> Vendedores { get; set; } = new();
+        public List<SelectListItem> Sellers { get; set; } = [];
 
         public async Task OnGetAsync()
         {
-            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores/listar");
-
-            if (vendedores != null)
-            {
-                Vendedores = vendedores.Select(v => new SelectListItem(v.NomeCompleto, v.Id.ToString())).ToList();
-            }
+            await LoadSellersAsync();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
+                await LoadSellersAsync();
                 return Page();
             }
 
-            var dto = new CriarInvoiceDto
+            var result = await Api.PostAsync("/api/invoices", Input);
+
+            if (!result.Success)
             {
-                VendedorId = Invoice.VendedorId,
-                Cliente = Invoice.Cliente,
-                CnpjCpfCliente = Invoice.CnpjCpfCliente,
-                ValorTotal = Invoice.ValorTotal,
-                DataEmissao = Invoice.DataEmissao,
-                Observacoes = Invoice.Observacoes,
-                Status = Invoice.Status
-            };
-
-            var response = await _client.PostAsJsonAsync("/api/invoices", dto);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
-
-                ModelState.AddModelError(string.Empty, errorResponse?.Error ?? "Erro ao criar invoice");
-
+                ModelState.AddModelError(string.Empty, result.Error!);
+                await LoadSellersAsync();
                 return Page();
             }
 
+            SuccessMessage = "Invoice created with its commission.";
             return RedirectToPage("Index");
         }
 
-        public class CreateInvoiceViewModel
+        private async Task LoadSellersAsync()
         {
-            public Guid VendedorId { get; set; }
-            public decimal ValorTotal { get; set; }
-            public DateTime DataEmissao { get; set; }
-            public string Cliente { get; set; } = string.Empty;
-            public string CnpjCpfCliente { get; set; } = string.Empty;
-            public StatusInvoice Status { get; set; }
-            public string? Observacoes { get; set; }
-        }
-
-        public class VendedorDropdownDto
-        {
-            [JsonPropertyName("id")]
-            public Guid Id { get; set; }
-
-            [JsonPropertyName("nome")]
-            public string NomeCompleto { get; set; } = string.Empty;
-
-            [JsonPropertyName("documento")]
-            public string Cpf { get; set; } = string.Empty;
-        }
-
-        public class ErrorResponse
-        {
-            public string Error { get; set; } = string.Empty;
+            var sellers = await Api.GetAsync<List<SellerOption>>("/api/sellers/options");
+            Sellers = sellers.Select(s => new SelectListItem(s.FullName, s.Id.ToString())).ToList();
         }
     }
 }

@@ -1,5 +1,6 @@
-﻿@page
+@page
 @model Front.Pages.Dashboard.IndexModel
+@using Front.Models
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -8,87 +9,90 @@
 
 <form method="get" class="mb-4 row g-2 align-items-end">
     <div class="col-md-3">
-        <label>Data Início</label>
-        <input type="date" name="FilterStartDate" class="form-control"
-               value="@(Model.FilterStartDate?.ToString("yyyy-MM-dd"))" />
+        <label class="form-label">Start date</label>
+        <input type="date" name="StartDate" class="form-control" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
     </div>
 
     <div class="col-md-3">
-        <label>Data Fim</label>
-        <input type="date" name="FilterEndDate" class="form-control"
-               value="@(Model.FilterEndDate?.ToString("yyyy-MM-dd"))" />
+        <label class="form-label">End date</label>
+        <input type="date" name="EndDate" class="form-control" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
     </div>
 
-    <div class="col-md-3">
-        <label>Vendedor</label>
-        <select name="FilterVendedorId" class="form-control">
-            <option value="">Todos</option>
+    @if (Model.IsAdmin)
+    {
+        <div class="col-md-3">
+            <label class="form-label">Seller</label>
+            <select name="SellerId" class="form-select">
+                <option value="">All</option>
+                @foreach (var seller in Model.Sellers)
+                {
+                    <option value="@seller.Id" selected="@(Model.SellerId == seller.Id)">@seller.FullName</option>
+                }
+            </select>
+        </div>
+    }
 
-            @foreach (var v in Model.Vendedores)
+    <div class="col-md-3">
+        <label class="form-label">Invoice status</label>
+        <select name="Status" class="form-select">
+            <option value="">All</option>
+            @foreach (var status in Enum.GetValues<InvoiceStatus>())
             {
-                <option value="@v.Id"
-                        selected="@(Model.FilterVendedorId == v.Id)">
-                    @v.NomeCompleto - CPF: @v.Cpf
-                </option>
+                <option value="@status" selected="@(Model.Status == status)">@status</option>
             }
         </select>
     </div>
 
-    <div class="col-md-3">
-        <label>Status Invoice</label>
-        <select name="FilterStatus" class="form-control">
-            <option value="">Todos</option>
-            <option value=1 selected="@(Model.FilterStatus == "Pendente")">Pendente</option>
-            <option value=2 selected="@(Model.FilterStatus == "Aprovada")">Aprovada</option>
-            <option value=3 selected="@(Model.FilterStatus == "Cancelada")">Cancelada</option>
-        </select>
-    </div>
-
     <div class="col-md-12 mt-2">
-        <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+        <button type="submit" class="btn btn-primary">Apply filters</button>
     </div>
 </form>
 
-<div class="row mb-4">
+<div class="row mb-4 g-3">
     <div class="col-md-3 d-flex">
         <div class="card p-3 border-primary h-100 w-100">
-            <h5>Total de Invoices</h5>
-            <h2>@Model.TotalInvoices</h2>
+            <h5>Invoices</h5>
+            <h2>@Model.Summary.TotalInvoices</h2>
+            <small class="text-muted">@Model.Summary.InvoicesLast30Days in the last 30 days</small>
         </div>
     </div>
 
     <div class="col-md-3 d-flex">
         <div class="card p-3 border-warning h-100 w-100">
-            <h5>Invoices Pendentes</h5>
-            <h2>@Model.PendingInvoices</h2>
+            <h5>Pending invoices</h5>
+            <h2>@Model.Summary.PendingInvoices</h2>
         </div>
     </div>
 
     <div class="col-md-3 d-flex">
         <div class="card p-3 border-info h-100 w-100">
-            <h5>Valor Total Invoices Aprovadas</h5>
-            <h2>@Model.TotalAprovadas.ToString("C")</h2>
+            <h5>Approved amount</h5>
+            <h2>@Model.Summary.ApprovedAmount.ToString("C")</h2>
         </div>
     </div>
 
     <div class="col-md-3 d-flex">
         <div class="card p-3 border-success h-100 w-100">
-            <h5>Comissões Pendentes</h5>
-            <h2>@Model.PendingCommissions.ToString("C")</h2>
+            <h5>Pending commissions</h5>
+            <h2>@Model.Summary.PendingCommissions.ToString("C")</h2>
+            <small class="text-muted">Paid: @Model.Summary.PaidCommissions.ToString("C")</small>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card p-3 border-secondary">
-            <h5>Top 5 Vendedores por Comissão</h5>
-            <ul>
-                @foreach (var v in Model.TopVendedores)
-                {
-                    <li>@v.NomeCompleto - @v.ComissaoTotal.ToString("C")</li>
-                }
-            </ul>
-        </div>
-    </div>
+<div class="card p-3 border-secondary">
+    <h5>Top 5 sellers by commission</h5>
+    @if (Model.Summary.TopSellers.Count == 0)
+    {
+        <p class="text-muted mb-0">No commissions for these filters.</p>
+    }
+    else
+    {
+        <ol class="mb-0">
+            @foreach (var seller in Model.Summary.TopSellers)
+            {
+                <li>@seller.FullName — @seller.TotalCommission.ToString("C")</li>
+            }
+        </ol>
+    }
 </div>

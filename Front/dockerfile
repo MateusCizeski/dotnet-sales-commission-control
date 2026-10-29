@@ -1,24 +1,16 @@
-# =========================
-# BUILD
-# =========================
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+COPY nuget.config Directory.Build.props Directory.Packages.props ./
 COPY Front/Front.csproj Front/
 RUN dotnet restore Front/Front.csproj
 
-COPY . .
-WORKDIR /src/Front
-RUN dotnet publish -c Release -o /app/publish
+COPY Front/ Front/
+RUN dotnet publish Front/Front.csproj -c Release -o /app/publish --no-restore
 
-# =========================
-# RUNTIME
-# =========================
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-
+USER $APP_UID
 EXPOSE 8080
-
 COPY --from=build /app/publish .
-
 ENTRYPOINT ["dotnet", "Front.dll"]

@@ -1,61 +1,73 @@
-﻿using Application.DTOs.Invoice;
-using Application.Interfaces;
+using ApiBase.Application.ApplicationGuid;
+using ApiBase.Controller.BaseGuid;
+using Application.Queries;
+using Application.Requests;
+using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("api/invoices")]
+    /// <summary>
+    /// Queries (GET list / GET by id) come from ApiBase; a Seller user only sees their own invoices.
+    /// Commands (create, update, approve, cancel) go through IInvoiceService and the domain: Admin only.
+    /// </summary>
     [ApiController]
-    public class InvoicesController : ControllerBase
+    [Route("api/invoices")]
+    [Authorize(Roles = Roles.AdminOrSeller)]
+    public class InvoicesController : GuidController<IApplicationGuid<InvoiceView>, InvoiceView>
     {
-        private readonly IInvoiceApplication _invoiceApplication;
+        private readonly IInvoiceService _invoiceService;
 
-        public InvoicesController(IInvoiceApplication invoiceApplication)
+        public InvoicesController(IApplicationGuid<InvoiceView> queries, IInvoiceService invoiceService, ILogger<InvoicesController> logger)
+            : base(queries, logger)
         {
-            _invoiceApplication = invoiceApplication;
+            _invoiceService = invoiceService;
         }
 
+        /// <summary>Creates the invoice and its commission (seller's current rate) in one transaction.</summary>
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] CriarInvoiceDto dto)
+        [Authorize(Roles = Roles.Admin)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Create([FromBody] CreateInvoiceRequest request, CancellationToken cancellationToken)
         {
-            var id = await _invoiceApplication.Criar(dto);
-            return CreatedAtAction(nameof(ListarPorId), new { id }, new { id });
+            var id = await _invoiceService.CreateAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id }, new { id });
         }
 
-        [HttpPut("{id}/aprovar")]
-        public async Task<IActionResult> Aprovar([FromRoute] Guid id)
+        /// <summary>Changes seller and total of a pending invoice and recalculates the commission.</summary>
+        [HttpPut("{id:guid}")]
+        [Authorize(Roles = Roles.Admin)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateInvoiceRequest request, CancellationToken cancellationToken)
         {
-            await _invoiceApplication.Aprovar(id);
+            await _invoiceService.UpdateAsync(id, request, cancellationToken);
             return NoContent();
         }
 
-        [HttpPut("{id}/cancelar")]
-        public async Task<IActionResult> Cancelar([FromRoute] Guid id)
+        [HttpPost("{id:guid}/approve")]
+        [Authorize(Roles = Roles.Admin)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Approve(Guid id, CancellationToken cancellationToken)
         {
-            await _invoiceApplication.Cancelar(id);
+            await _invoiceService.ApproveAsync(id, cancellationToken);
             return NoContent();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Editar([FromRoute] Guid id, [FromBody] EditarInvoiceDtoEnxuto dto)
+        /// <summary>Cancels the invoice and its pending commission (not allowed when the commission is paid).</summary>
+        [HttpPost("{id:guid}/cancel")]
+        [Authorize(Roles = Roles.Admin)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Cancel(Guid id, CancellationToken cancellationToken)
         {
-            await _invoiceApplication.Editar(id, dto);
+            await _invoiceService.CancelAsync(id, cancellationToken);
             return NoContent();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ListarPaginado([FromQuery] Guid? vendedorId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
-        {
-
-            var result = await _invoiceApplication.ListarPaginado(vendedorId, page, pageSize);
-            return Ok(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> ListarPorId([FromRoute] Guid id)
-        {
-            var invoice = await _invoiceApplication.ListarPorId(id);
-            return Ok(invoice);
         }
     }
 }

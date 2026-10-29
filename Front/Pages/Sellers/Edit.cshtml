@@ -1,0 +1,36 @@
+@page "{id:guid}"
+@model Front.Pages.Sellers.EditModel
+@{
+    ViewData["Title"] = "Edit seller";
+}
+
+<h1>Edit seller</h1>
+
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    @if (!string.IsNullOrEmpty(Model.Cpf))
+    {
+        <p class="text-muted">CPF @Model.Cpf · @Model.Email (cannot be changed)</p>
+    }
+
+    <div class="mb-3">
+        <label asp-for="Input.FullName" class="form-label"></label>
+        <input asp-for="Input.FullName" class="form-control" />
+        <span asp-validation-for="Input.FullName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Input.CommissionRate" class="form-label"></label>
+        <input asp-for="Input.CommissionRate" type="number" step="0.01" min="0" max="15" class="form-control" />
+        <span asp-validation-for="Input.CommissionRate" class="text-danger"></span>
+        <div class="form-text">The new rate applies to invoices created or edited from now on.</div>
+    </div>
+
+    <button class="btn btn-success">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

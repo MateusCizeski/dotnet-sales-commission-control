@@ -1,0 +1,9 @@
+@model Front.Pages.ApiPageModel
+
+<label class="form-label">Items per page</label>
+<select name="PageSize" class="form-select">
+    @foreach (var size in Front.Pages.ApiPageModel.PageSizes)
+    {
+        <option value="@size" selected="@(Model.PageSize == size)">@size</option>
+    }
+</select>

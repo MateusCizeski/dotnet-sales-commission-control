@@ -1,6 +1,26 @@
-@Api_HostAddress = http://localhost:5273
+# Requests for the VS / Rider / VS Code REST client.
+# 1. Run "login" and copy the accessToken into @token.
 
-GET {{Api_HostAddress}}/weatherforecast/
-Accept: application/json
+@host = http://localhost:5001
+@token = paste-the-access-token-here
 
-###
+### Login (credentials from your User Secrets: Seed:AdminEmail / Seed:AdminPassword)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "your-local-password"
+}
+
+### Invoices: approved, most recent first, 10 per page, only some fields
+GET {{host}}/api/invoices?filter=[{"property":"Status","value":"Approved"}]&sort=[{"property":"IssueDate","direction":"desc"}]&page=1&limit=10&fields=Id,Number,TotalAmount,Status
+Authorization: Bearer {{token}}
+
+### Commissions of one seller
+GET {{host}}/api/commissions?filter=[{"property":"Invoice.SellerId","value":"00000000-0000-0000-0000-000000000000"}]
+Authorization: Bearer {{token}}
+
+### Dashboard
+GET {{host}}/api/dashboard/summary?startDate=2026-01-01&endDate=2026-12-31
+Authorization: Bearer {{token}}

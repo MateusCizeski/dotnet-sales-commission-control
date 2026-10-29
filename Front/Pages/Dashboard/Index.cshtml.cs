@@ -1,115 +1,46 @@
+using Front.Models;
+using Front.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using System.Text.Json.Serialization;
 
 namespace Front.Pages.Dashboard
 {
-    public class IndexModel : PageModel
+    public class IndexModel : ApiPageModel
     {
-        private readonly HttpClient _client;
+        public IndexModel(ApiClient api) : base(api) { }
 
-        public IndexModel(IHttpClientFactory factory)
-        {
-            _client = factory.CreateClient("Api");
-        }
-
-        public int TotalInvoices { get; set; }
-        public int PendingInvoices { get; set; }
-        public decimal TotalAprovadas { get; set; }
-        public decimal PendingCommissions { get; set; }
-
-        public List<VendedorDashboardDto> TopVendedores { get; set; } = new();
-        public List<VendedorDropdownDto> Vendedores { get; set; } = new();
+        public DashboardSummary Summary { get; set; } = new();
+        public List<SellerOption> Sellers { get; set; } = [];
 
         [BindProperty(SupportsGet = true)]
-        public DateTime? FilterStartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public DateTime? FilterEndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public Guid? FilterVendedorId { get; set; }
+        public Guid? SellerId { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public string? FilterStatus { get; set; }
+        public InvoiceStatus? Status { get; set; }
 
         public async Task OnGetAsync()
         {
-            Vendedores = await ObterVendedoresAsync();
-
-            var query = new Dictionary<string, string>();
-
-            if (FilterStartDate.HasValue)
+            if (IsAdmin)
             {
-                query.Add("startDate", FilterStartDate.Value.ToString("yyyy-MM-dd"));
+                Sellers = await Api.GetAsync<List<SellerOption>>("/api/sellers/options");
             }
 
-            if (FilterEndDate.HasValue)
+            var query = new Dictionary<string, string?>
             {
-                query.Add("endDate", FilterEndDate.Value.ToString("yyyy-MM-dd"));
-            }
+                ["startDate"] = StartDate?.ToString("yyyy-MM-dd"),
+                ["endDate"] = EndDate?.ToString("yyyy-MM-dd"),
+                ["sellerId"] = SellerId?.ToString(),
+                ["status"] = Status?.ToString()
+            };
 
-            if (FilterVendedorId.HasValue)
-            {
-                query.Add("vendedorId", FilterVendedorId.Value.ToString());
-            }
-
-            if (!string.IsNullOrWhiteSpace(FilterStatus))
-            {
-                query.Add("statusInvoice", FilterStatus);
-            }
-
-            var url = QueryHelpers.AddQueryString("/api/dashboard/invoices/summary", query);
-
-            var resumo = await _client.GetFromJsonAsync<InvoiceSummaryDto>(url);
-
-            if (resumo == null)
-            {
-                return;
-            }
-
-            TotalInvoices = resumo.TotalInvoices;
-            PendingInvoices = resumo.TotalPendente;
-            TotalAprovadas = resumo.ValorTotalAprovadas;
-            PendingCommissions = resumo.TotalComissoesPendentes;
-            TopVendedores = resumo.TopVendedores ?? new();
-        }
-
-        public class InvoiceSummaryDto
-        {
-            public int TotalInvoices { get; set; }
-            public int TotalPendente { get; set; }
-            public int TotalAprovada { get; set; }
-            public int TotalCancelada { get; set; }
-            public decimal ValorTotalAprovadas { get; set; }
-            public int InvoicesUltimos30Dias { get; set; }
-            public decimal TotalComissoesPendentes { get; set; }
-            public decimal TotalComissoesPagas { get; set; }
-            public List<VendedorDashboardDto> TopVendedores { get; set; } = new();
-        }
-
-        private async Task<List<VendedorDropdownDto>> ObterVendedoresAsync()
-        {
-            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores/listar");
-
-            return vendedores ?? new List<VendedorDropdownDto>();
-        }
-
-        public class VendedorDashboardDto
-        {
-            public string NomeCompleto { get; set; } = string.Empty;
-            public decimal ComissaoTotal { get; set; }
-        }
-
-        public class VendedorDropdownDto
-        {
-            [JsonPropertyName("id")]
-            public Guid Id { get; set; }
-            [JsonPropertyName("documento")]
-            public string Cpf { get; set; }
-            [JsonPropertyName("nome")]
-            public string NomeCompleto { get; set; } = string.Empty;
+            var url = QueryHelpers.AddQueryString("/api/dashboard/summary", query.Where(q => q.Value != null));
+            Summary = await Api.GetAsync<DashboardSummary>(url);
         }
     }
 }

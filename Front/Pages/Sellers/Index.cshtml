@@ -1,0 +1,96 @@
+@page
+@model Front.Pages.Sellers.IndexModel
+@{
+    ViewData["Title"] = "Sellers";
+}
+
+<h1>Sellers</h1>
+
+<partial name="_Messages" model="Model" />
+
+<a asp-page="Create" class="btn btn-success mb-3">New seller</a>
+
+<form method="get" class="mb-3 row g-2 align-items-end">
+    <div class="col-md-4">
+        <label class="form-label">Name contains</label>
+        <input name="Search" value="@Model.Search" class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Status</label>
+        <select name="Active" class="form-select">
+            <option value="">All</option>
+            <option value="true" selected="@(Model.Active == true)">Active</option>
+            <option value="false" selected="@(Model.Active == false)">Inactive</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <partial name="_PageSizeSelect" model="Model" />
+    </div>
+
+    <div class="col-md-1">
+        <button class="btn btn-primary">Search</button>
+    </div>
+
+    <div class="col d-flex justify-content-end">
+        <a asp-page-handler="ExportExcel" asp-all-route-data="Model.RouteFilters" class="btn btn-outline-success me-2">Export Excel</a>
+        <a asp-page-handler="ExportPdf" asp-all-route-data="Model.RouteFilters" class="btn btn-outline-danger">Export PDF</a>
+    </div>
+</form>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>CPF</th>
+            <th>Email</th>
+            <th>Commission %</th>
+            <th>Status</th>
+            <th style="width:300px">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var seller in Model.Sellers)
+        {
+            <tr>
+                <td>@seller.FullName</td>
+                <td>@seller.Cpf</td>
+                <td>@seller.Email</td>
+                <td>@seller.CommissionRate.ToString("N2")</td>
+                <td>
+                    @if (seller.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactive</span>
+                    }
+                </td>
+                <td class="d-flex gap-1">
+                    <a asp-page="Edit" asp-route-id="@seller.Id" class="btn btn-sm btn-primary">Edit</a>
+
+                    @if (seller.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-all-route-data="Model.RouteFor(seller.Id)">
+                            <button class="btn btn-sm btn-warning">Deactivate</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form method="post" asp-page-handler="Activate" asp-all-route-data="Model.RouteFor(seller.Id)">
+                            <button class="btn btn-sm btn-success">Activate</button>
+                        </form>
+                    }
+
+                    <form method="post" asp-page-handler="Delete" asp-all-route-data="Model.RouteFor(seller.Id)" onsubmit="return confirm('Delete this seller?');">
+                        <button class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<partial name="_Pager" model="Model" />

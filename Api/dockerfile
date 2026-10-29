@@ -1,18 +1,24 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+# Restore first (cached layer while only code changes)
+COPY nuget.config Directory.Build.props Directory.Packages.props ./
+COPY Domain/Domain.csproj Domain/
+COPY Application/Application.csproj Application/
+COPY Infra/Infra.csproj Infra/
 COPY Api/Api.csproj Api/
 RUN dotnet restore Api/Api.csproj
 
-COPY . .
-WORKDIR /src/Api
-RUN dotnet publish -c Release -o /app/publish
+COPY Domain/ Domain/
+COPY Application/ Application/
+COPY Infra/ Infra/
+COPY Api/ Api/
+RUN dotnet publish Api/Api.csproj -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-
+# Non-root user provided by the .NET images
+USER $APP_UID
 EXPOSE 8080
-
 COPY --from=build /app/publish .
-
 ENTRYPOINT ["dotnet", "Api.dll"]

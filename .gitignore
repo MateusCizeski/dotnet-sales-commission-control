@@ -6,11 +6,9 @@ obj/
 *.userosscache
 *.sln.docstates
 
-## Visual Studio
+## IDEs
 .vs/
 .vscode/
-
-## Rider
 .idea/
 
 ## Logs
@@ -20,13 +18,11 @@ obj/
 .DS_Store
 Thumbs.db
 
-## Environment
-appsettings.json
-appsettings.Development.json
+## Secrets — never versioned. appsettings*.json are versioned and hold no secrets
+## (JWT key and passwords come from User Secrets / environment variables / .env).
+.env
+appsettings.*.local.json
 appsettings.Production.json
-
-## EF Core
-Migrations/*.csproj.user
 
 ## Test results
 TestResults/

@@ -1,43 +1,54 @@
+# Local environment: SQL Server + API + Front.
+# Copy .env.example to .env and fill the values first (the .env file is not versioned).
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
+    container_name: sales-sqlserver
     environment:
-      SA_PASSWORD: "Your_password123"
       ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD:?Set SA_PASSWORD in .env}
     ports:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   api:
     build:
       context: .
-      dockerfile: Api/Dockerfile
-    container_name: api
+      dockerfile: Api/dockerfile
+    container_name: sales-api
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: >
-        Server=sqlserver,1433;
-        Database=ComissoesDb;
-        User Id=sa;
-        Password=Your_password123;
-        TrustServerCertificate=True
+      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=SalesCommissionDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True
+      Jwt__Secret: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      Seed__AdminEmail: ${SEED_ADMIN_EMAIL:-}
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-}
+      Seed__SellerEmail: ${SEED_SELLER_EMAIL:-}
+      Seed__SellerPassword: ${SEED_SELLER_PASSWORD:-}
     ports:
       - "5001:8080"
 
   front:
     build:
       context: .
-      dockerfile: Front/Dockerfile
-    container_name: front
+      dockerfile: Front/dockerfile
+    container_name: sales-front
     depends_on:
       - api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
       ApiSettings__BaseUrl: http://api:8080
     ports:
       - "7000:8080"

@@ -1,25 +1,27 @@
-﻿using Application.DTOs.Dashboard;
-using Application.Interfaces;
+using Application.Queries;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("api/dashboard")]
     [ApiController]
+    [Route("api/dashboard")]
+    [Authorize(Roles = Roles.AdminOrSeller)]
     public class DashboardController : ControllerBase
     {
-        private readonly IDashboardApplication _dashboardApplication;
+        private readonly IDashboardQueries _dashboardQueries;
 
-        public DashboardController(IDashboardApplication dashboardApplication)
+        public DashboardController(IDashboardQueries dashboardQueries)
         {
-            _dashboardApplication = dashboardApplication;
+            _dashboardQueries = dashboardQueries;
         }
 
-        [HttpGet("invoices/summary")]
-        public async Task<ActionResult<InvoiceSummaryDto>> ResumoInvoices([FromQuery] ObterResumoDto dto)
+        /// <summary>Invoice and commission totals for the filters. A Seller user always gets only their own numbers.</summary>
+        [HttpGet("summary")]
+        [ProducesResponseType(typeof(DashboardSummary), StatusCodes.Status200OK)]
+        public async Task<ActionResult<DashboardSummary>> GetSummary([FromQuery] DashboardFilter filter, CancellationToken cancellationToken)
         {
-            var resumo = await _dashboardApplication.ObterResumoInvoicesAsync(dto);
-            return Ok(resumo);
+            return Ok(await _dashboardQueries.GetSummaryAsync(filter, cancellationToken));
         }
     }
 }

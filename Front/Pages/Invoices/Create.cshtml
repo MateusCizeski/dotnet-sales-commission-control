@@ -1,49 +1,56 @@
-﻿@page
+@page
 @model Front.Pages.Invoices.CreateModel
 @{
-    ViewData["Title"] = "Nova Invoice";
+    ViewData["Title"] = "New invoice";
 }
 
-<h1>Nova Invoice</h1>
+<h1>New invoice</h1>
 
 <form method="post" class="col-md-6">
-    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
     <div class="mb-3">
-        <label>Vendedor</label>
-        <select asp-for="Invoice.VendedorId"
-                asp-items="Model.Vendedores"
-                class="form-select">
-            <option value="">Selecione</option>
+        <label asp-for="Input.SellerId" class="form-label"></label>
+        <select asp-for="Input.SellerId" asp-items="Model.Sellers" class="form-select">
+            <option value="">Select</option>
         </select>
+        <span asp-validation-for="Input.SellerId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>Cliente</label>
-        <input asp-for="Invoice.Cliente" class="form-control" />
+        <label asp-for="Input.CustomerName" class="form-label"></label>
+        <input asp-for="Input.CustomerName" class="form-control" />
+        <span asp-validation-for="Input.CustomerName" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>CNPJ/CPF Cliente</label>
-        <input asp-for="Invoice.CnpjCpfCliente" class="form-control" />
+        <label asp-for="Input.CustomerTaxId" class="form-label"></label>
+        <input asp-for="Input.CustomerTaxId" class="form-control" />
+        <span asp-validation-for="Input.CustomerTaxId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>Valor Total</label>
-        <input asp-for="Invoice.ValorTotal"
-               class="form-control"
-               step="0.01" />
+        <label asp-for="Input.TotalAmount" class="form-label"></label>
+        <input asp-for="Input.TotalAmount" class="form-control" step="0.01" />
+        <span asp-validation-for="Input.TotalAmount" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>Data de Emissão</label>
-        <input asp-for="Invoice.DataEmissao" type="date" class="form-control" />
+        <label asp-for="Input.IssueDate" class="form-label"></label>
+        <input asp-for="Input.IssueDate" type="date" class="form-control" />
+        <span asp-validation-for="Input.IssueDate" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>Observações</label>
-        <textarea asp-for="Invoice.Observacoes" class="form-control"></textarea>
+        <label asp-for="Input.Notes" class="form-label"></label>
+        <textarea asp-for="Input.Notes" class="form-control"></textarea>
+        <span asp-validation-for="Input.Notes" class="text-danger"></span>
     </div>
 
-    <button class="btn btn-success">Salvar</button>
-    <a asp-page="Index" class="btn btn-secondary">Cancelar</a>
+    <button class="btn btn-success">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Back</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

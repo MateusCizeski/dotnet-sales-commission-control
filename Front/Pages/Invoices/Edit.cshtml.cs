@@ -1,39 +1,38 @@
-using Application.DTOs.Invoice;
+using Front.Models;
+using Front.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Text.Json.Serialization;
 
 namespace Front.Pages.Invoices
 {
-    public class EditModel : PageModel
+    [Authorize(Roles = FrontClaims.AdminRole)]
+    public class EditModel : ApiPageModel
     {
-        private readonly HttpClient _client;
+        public EditModel(ApiClient api) : base(api) { }
 
-        public EditModel(IHttpClientFactory factory)
-        {
-            _client = factory.CreateClient("Api");
-        }
+        [BindProperty(SupportsGet = true)]
+        public Guid Id { get; set; }
 
         [BindProperty]
-        public EditarInvoiceDtoEnxuto Invoice { get; set; } = new();
+        public InvoiceEditForm Input { get; set; } = new();
 
-        public List<SelectListItem> Vendedores { get; set; } = new();
+        public string Number { get; set; } = string.Empty;
+        public List<SelectListItem> Sellers { get; set; } = [];
 
-        public async Task<IActionResult> OnGetAsync(Guid id)
+        public async Task<IActionResult> OnGetAsync()
         {
-            var invoice = await _client.GetFromJsonAsync<EditarInvoiceDto>($"/api/invoices/{id}");
+            var invoice = await Api.FindAsync<InvoiceItem>($"/api/invoices/{Id}");
 
             if (invoice == null)
             {
-                return RedirectToPage("Index");
+                return NotFound();
             }
 
-            Invoice.Id = invoice.Id;
-            Invoice.VendedorId = invoice.VendedorId;
-            Invoice.ValorTotal = invoice.ValorTotal;
+            Number = invoice.Number;
+            Input = new InvoiceEditForm { SellerId = invoice.SellerId, TotalAmount = invoice.TotalAmount };
+            await LoadSellersAsync();
 
-            await CarregarVendedoresAsync();
             return Page();
         }
 
@@ -41,46 +40,27 @@ namespace Front.Pages.Invoices
         {
             if (!ModelState.IsValid)
             {
-                await CarregarVendedoresAsync();
+                await LoadSellersAsync();
                 return Page();
             }
 
-            var response = await _client.PutAsJsonAsync($"/api/invoices/{Invoice.Id}", Invoice);
+            var result = await Api.PutAsync($"/api/invoices/{Id}", Input);
 
-            if (!response.IsSuccessStatusCode)
+            if (!result.Success)
             {
-                ModelState.AddModelError("", "Erro ao atualizar invoice");
-                await CarregarVendedoresAsync();
+                ModelState.AddModelError(string.Empty, result.Error!);
+                await LoadSellersAsync();
                 return Page();
             }
 
+            SuccessMessage = "Invoice updated and commission recalculated.";
             return RedirectToPage("Index");
         }
 
-        private async Task CarregarVendedoresAsync()
+        private async Task LoadSellersAsync()
         {
-            var vendedores = await _client.GetFromJsonAsync<List<VendedorDropdownDto>>("/api/vendedores/listar");
-
-            Vendedores = vendedores?
-                .Select(v => new SelectListItem
-                {
-                    Text = v.NomeCompleto,
-                    Value = v.Id.ToString(),
-                    Selected = v.Id == Invoice.VendedorId
-                })
-                .ToList() ?? new();
-        }
-
-        public class VendedorDropdownDto
-        {
-            [JsonPropertyName("id")]
-            public Guid Id { get; set; }
-
-            [JsonPropertyName("nome")]
-            public string NomeCompleto { get; set; } = string.Empty;
-
-            [JsonPropertyName("documento")]
-            public string Cpf { get; set; } = string.Empty;
+            var sellers = await Api.GetAsync<List<SellerOption>>("/api/sellers/options");
+            Sellers = sellers.Select(s => new SelectListItem(s.FullName, s.Id.ToString(), s.Id == Input.SellerId)).ToList();
         }
     }
 }

@@ -1,11 +1,16 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Domain.Validation
 {
     public static class CpfValidator
     {
-        public static bool CpfIsValid(string cpf)
+        public static bool CpfIsValid(string? cpf)
         {
+            if (string.IsNullOrWhiteSpace(cpf))
+            {
+                return false;
+            }
+
             cpf = Regex.Replace(cpf, "[^0-9]", "");
 
             if (cpf.Length != 11)

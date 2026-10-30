@@ -1,0 +1,16 @@
+# .NET
+**/bin/
+**/obj/
+
+# IDEs
+**/.vs/
+**/.idea/
+
+# Git
+.git/
+.github/
+
+# Local configuration
+.env
+.env.*
+!.env.example
